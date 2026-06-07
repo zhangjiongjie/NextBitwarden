@@ -443,6 +443,53 @@ git add apps/harmony-app/README.md
 git commit -m "docs(鸿蒙): 记录初始工程验证状态"
 ```
 
+## 任务 7：首批 Password Manager UI 状态流
+
+**文件：**
+- 创建：`apps/harmony-app/entry/src/main/ets/core/navigation/AppDestination.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/app/AppShell.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/app/AppTheme.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/auth/AuthLandingScreen.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/auth/VaultUnlockScreen.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/vault/VaultHomeScreen.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/vault/VerificationCodesScreen.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/platform/SystemIntegrationScreen.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/settings/SettingsOverviewScreen.ets`
+
+- [x] **步骤 1：建立应用内目的地**
+
+```typescript
+export enum AppDestination {
+  SignIn = 'signIn',
+  Unlock = 'unlock',
+  Vault = 'vault',
+  VerificationCodes = 'verificationCodes',
+  SystemIntegrations = 'systemIntegrations',
+  Settings = 'settings'
+}
+```
+
+- [x] **步骤 2：将 AppShell 从工程控制台改为主应用状态流**
+
+`AppShell` 现在承载顶部栏、Root 状态提示、滚动内容区和底部导航，并能在登录、解锁、保险库、验证码、系统集成和设置之间切换。
+
+- [x] **步骤 3：建立首批页面骨架**
+
+首批页面覆盖：
+
+- 登录：账号密码、设备 Passkey、企业 SSO、自托管入口。
+- 解锁：主密码、生物识别解锁入口。
+- 保险库：首页摘要、TOTP 入口、收藏和类型列表。
+- 验证码：主应用内两步验证码展示页，占位码明确标注为 UI 骨架。
+- 系统集成：自动填充、凭据获取、Passkey、生物识别、推送同步能力清单。
+- 设置：Premium 开放、自托管、安全策略、企业能力概览。
+
+- [x] **步骤 4：运行构建验证**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode project assembleApp --no-daemon --stacktrace`
+
+结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
+
 ## 自检
 
 - 规格覆盖度：计划覆盖 `Password Manager` 一期主应用、TOTP、设备 Passkey 登录、自动填充、凭据获取、SDK bridge、生物识别、推送同步、自托管 / SSO / trusted device / key connector 边界。
