@@ -490,6 +490,45 @@ export enum AppDestination {
 
 结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
 
+## 任务 8：App 级 `state-action` reducer
+
+**文件：**
+- 创建：`apps/harmony-app/entry/src/main/ets/app/state/AppStateReducer.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/app/AppShell.ets`
+- 创建：`apps/harmony-app/entry/src/ohosTest/module.json5`
+- 创建：`apps/harmony-app/entry/src/ohosTest/ets/test/AppStateReducer.test.ets`
+- 创建：`apps/harmony-app/entry/src/ohosTest/ets/test/List.test.ets`
+- 创建：`apps/harmony-app/entry/src/ohosTest/ets/testability/TestAbility.ets`
+- 创建：`apps/harmony-app/entry/src/ohosTest/ets/testrunner/OpenHarmonyTestRunner.ets`
+- 创建：`apps/harmony-app/entry/src/ohosTest/resources/**`
+
+- [x] **步骤 1：先写 reducer 测试**
+
+测试覆盖：
+
+- 账号密码登录进入 `Locked / Unlock`。
+- 解锁成功进入 `Unlocked / Vault`。
+- 系统集成入口进入 `SystemEntry / SystemIntegrations`。
+- 返回登录进入 `SignedOut / SignIn`。
+
+- [x] **步骤 2：验证红灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：构建失败，错误为 `Cannot find module '../../../main/ets/app/state/AppStateReducer'`，证明测试正在约束尚未实现的 reducer。
+
+- [x] **步骤 3：实现最小 reducer**
+
+`AppStateReducer` 定义 `AppState`、`AppAction`、`createInitialAppState()` 和 `reduce()`，并让 `AppShell` 的跳转统一通过 `dispatch(AppAction)` 完成。
+
+- [x] **步骤 4：验证绿灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
+
+说明：当前命令证明测试 HAP 可编译；真正执行 Hypium 测试需要连接 HarmonyOS 设备或模拟器。
+
 ## 自检
 
 - 规格覆盖度：计划覆盖 `Password Manager` 一期主应用、TOTP、设备 Passkey 登录、自动填充、凭据获取、SDK bridge、生物识别、推送同步、自托管 / SSO / trusted device / key connector 边界。

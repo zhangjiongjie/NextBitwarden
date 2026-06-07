@@ -1,17 +1,17 @@
 import { AppDestination, destinationTitle } from '../core/navigation/AppDestination';
-import { RootState, rootStateDescription, rootStateTitle } from '../core/navigation/RootState';
+import { rootStateDescription, rootStateTitle } from '../core/navigation/RootState';
 import { AuthLandingScreen } from '../features/auth/AuthLandingScreen';
 import { VaultUnlockScreen } from '../features/auth/VaultUnlockScreen';
 import { SystemIntegrationScreen } from '../features/platform/SystemIntegrationScreen';
 import { SettingsOverviewScreen } from '../features/settings/SettingsOverviewScreen';
 import { VaultHomeScreen } from '../features/vault/VaultHomeScreen';
 import { VerificationCodesScreen } from '../features/vault/VerificationCodesScreen';
+import { AppAction, AppState, AppStateReducer, createInitialAppState } from './state/AppStateReducer';
 import { AppTheme } from './AppTheme';
 
 @Component
 export struct AppShell {
-  @State private rootState: RootState = RootState.SignedOut;
-  @State private destination: AppDestination = AppDestination.SignIn;
+  @State private appState: AppState = createInitialAppState();
 
   build() {
     Column() {
@@ -96,48 +96,43 @@ export struct AppShell {
     if (this.destination === AppDestination.SignIn) {
       AuthLandingScreen({
         onPasswordSignIn: () => {
-          this.rootState = RootState.Locked;
-          this.destination = AppDestination.Unlock;
+          this.dispatch(AppAction.ContinueWithPassword);
         },
         onDevicePasskey: () => {
-          this.rootState = RootState.Unlocked;
-          this.destination = AppDestination.Vault;
+          this.dispatch(AppAction.DevicePasskeySucceeded);
         },
         onSsoSignIn: () => {
-          this.destination = AppDestination.Settings;
+          this.dispatch(AppAction.SsoRequested);
         },
         onSelfHostedConfig: () => {
-          this.destination = AppDestination.Settings;
+          this.dispatch(AppAction.SelfHostedRequested);
         }
       });
     } else if (this.destination === AppDestination.Unlock) {
       VaultUnlockScreen({
         onUnlocked: () => {
-          this.rootState = RootState.Unlocked;
-          this.destination = AppDestination.Vault;
+          this.dispatch(AppAction.UnlockSucceeded);
         },
         onUseBiometric: () => {
-          this.rootState = RootState.Unlocked;
-          this.destination = AppDestination.Vault;
+          this.dispatch(AppAction.UnlockSucceeded);
         },
         onBackToLogin: () => {
-          this.rootState = RootState.SignedOut;
-          this.destination = AppDestination.SignIn;
+          this.dispatch(AppAction.BackToLogin);
         }
       });
     } else if (this.destination === AppDestination.Vault) {
       VaultHomeScreen({
         onVerificationCodes: () => {
-          this.destination = AppDestination.VerificationCodes;
+          this.dispatch(AppAction.OpenVerificationCodes);
         },
         onSystemIntegrations: () => {
-          this.destination = AppDestination.SystemIntegrations;
+          this.dispatch(AppAction.OpenSystemIntegrations);
         }
       });
     } else if (this.destination === AppDestination.VerificationCodes) {
       VerificationCodesScreen({
         onBackToVault: () => {
-          this.destination = AppDestination.Vault;
+          this.dispatch(AppAction.OpenVault);
         }
       });
     } else if (this.destination === AppDestination.SystemIntegrations) {
@@ -179,14 +174,34 @@ export struct AppShell {
       .fontColor(this.destination === target ? AppTheme.primaryColor : AppTheme.bodyColor)
       .backgroundColor(this.destination === target ? AppTheme.primarySoftColor : AppTheme.surfaceColor)
       .onClick(() => {
-        this.destination = target;
-        if (target === AppDestination.SignIn) {
-          this.rootState = RootState.SignedOut;
-        } else if (target === AppDestination.Vault) {
-          this.rootState = RootState.Unlocked;
-        } else if (target === AppDestination.SystemIntegrations) {
-          this.rootState = RootState.SystemEntry;
-        }
+        this.dispatch(this.actionForDestination(target));
       });
+  }
+
+  private get rootState() {
+    return this.appState.rootState;
+  }
+
+  private get destination() {
+    return this.appState.destination;
+  }
+
+  private dispatch(action: AppAction): void {
+    this.appState = AppStateReducer.reduce(this.appState, action);
+  }
+
+  private actionForDestination(target: AppDestination): AppAction {
+    switch (target) {
+      case AppDestination.SignIn:
+        return AppAction.OpenSignIn;
+      case AppDestination.Vault:
+        return AppAction.OpenVault;
+      case AppDestination.SystemIntegrations:
+        return AppAction.OpenSystemIntegrations;
+      case AppDestination.Settings:
+        return AppAction.OpenSettings;
+      default:
+        return AppAction.OpenVault;
+    }
   }
 }

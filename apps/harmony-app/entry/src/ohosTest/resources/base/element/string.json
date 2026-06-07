@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_test_desc",
+      "value": "NextBitwarden test module"
+    },
+    {
+      "name": "TestAbility_desc",
+      "value": "NextBitwarden test ability"
+    },
+    {
+      "name": "TestAbility_label",
+      "value": "NextBitwarden Tests"
+    }
+  ]
+}

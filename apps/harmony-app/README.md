@@ -10,6 +10,7 @@
 - `core/sdk`：Bitwarden internal SDK 接入边界，先定义 client 生命周期和 repository bridge。
 - `features`：Auth、Vault、Autofill、Passkey、Settings 的一期功能契约。
 - 首批 UI 状态流：登录、解锁、保险库首页、两步验证码、系统集成和设置概览。
+- `ohosTest`：首批 Hypium 测试入口，当前覆盖 App 级状态 reducer。
 
 ## 签名策略
 
@@ -20,5 +21,7 @@
 - 已创建 HarmonyOS NEXT Stage 模型工程骨架。
 - 已建立 Root 状态、Capability、SDK Bridge 和一期 Feature Contract。
 - 已加入首批 Password Manager UI 状态流，用于承接后续真实 Auth / Vault / Autofill / Passkey 实现。
+- 已引入 `AppStateReducer`，将 AppShell 的页面跳转改为 `state-action` 驱动，并用 ohosTest 编译验证 reducer 测试。
 - `ohpm install --all` 已通过。
 - `hvigorw.bat --mode project assembleApp --no-daemon --stacktrace` 已通过，当前仅提示 `No signingConfig found for product default`。这符合仓库不提交签名材料的策略，后续真机安装前再补本地调试签名。
+- `hvigorw.bat --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace` 已通过，当前只验证测试 HAP 可编译；运行 Hypium 测试仍需要连接设备或模拟器。
