@@ -529,6 +529,56 @@ export enum AppDestination {
 
 说明：当前命令证明测试 HAP 可编译；真正执行 Hypium 测试需要连接 HarmonyOS 设备或模拟器。
 
+## 任务 9：Auth / Vault feature 级状态模型
+
+**文件：**
+- 创建：`apps/harmony-app/entry/src/main/ets/features/auth/state/AuthStateMachine.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/vault/state/VaultStateMachine.ets`
+- 创建：`apps/harmony-app/entry/src/ohosTest/ets/test/AuthStateMachine.test.ets`
+- 创建：`apps/harmony-app/entry/src/ohosTest/ets/test/VaultStateMachine.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/List.test.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/features/auth/AuthLandingScreen.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/features/vault/VaultHomeScreen.ets`
+
+- [x] **步骤 1：先写 Auth / Vault 状态机测试**
+
+测试覆盖：
+
+- Auth 邮箱输入会更新登录视图状态。
+- 账号密码登录在缺少邮箱时停留在邮箱输入状态，并产生校验事件。
+- 账号密码登录在已有邮箱时进入主密码解锁事件。
+- 设备内置 Passkey 登录会产生独立 capability 启动事件。
+- Vault 首页可以进入两步验证码页面。
+- 两步验证码页面可以回到保险库列表。
+- Vault 首页可以进入系统集成状态面板。
+- 锁定请求会显式标记 `lockRequested`，不伪装保险库仍处于可用状态。
+
+- [x] **步骤 2：验证红灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：构建失败，错误为找不到 `features/auth/state/AuthStateMachine` 和 `features/vault/state/VaultStateMachine`，证明测试正在约束尚未实现的 feature 状态模型。
+
+- [x] **步骤 3：实现最小状态模型**
+
+`AuthStateMachine` 定义 `AuthViewState / AuthAction / AuthEventKind / AuthTransition`，覆盖邮箱校验、账号密码登录、设备 Passkey、SSO、自托管配置和 TOTP 提交事件。
+
+`VaultStateMachine` 定义 `VaultViewState / VaultAction / VaultEventKind / VaultTransition`，覆盖保险库列表、条目详情、两步验证码、系统集成和锁定请求。
+
+- [x] **步骤 4：接入首批页面**
+
+`AuthLandingScreen` 现在使用 Auth 状态机驱动邮箱输入、校验提示和登录入口事件；`VaultHomeScreen` 使用 Vault 状态机驱动两步验证码和系统集成入口事件。
+
+- [x] **步骤 5：验证绿灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode project assembleApp --no-daemon --stacktrace`
+
+结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
+
 ## 自检
 
 - 规格覆盖度：计划覆盖 `Password Manager` 一期主应用、TOTP、设备 Passkey 登录、自动填充、凭据获取、SDK bridge、生物识别、推送同步、自托管 / SSO / trusted device / key connector 边界。

@@ -1,4 +1,12 @@
 import { AppTheme } from '../../app/AppTheme';
+import {
+  AuthAction,
+  AuthEventKind,
+  AuthStateMachine,
+  AuthTransition,
+  AuthViewState,
+  createInitialAuthState
+} from './state/AuthStateMachine';
 
 @Component
 export struct AuthLandingScreen {
@@ -7,7 +15,7 @@ export struct AuthLandingScreen {
   onSsoSignIn?: () => void;
   onSelfHostedConfig?: () => void;
 
-  @State private email: string = '';
+  @State private authState: AuthViewState = createInitialAuthState();
 
   build() {
     Column({ space: 18 }) {
@@ -34,7 +42,7 @@ export struct AuthLandingScreen {
 
         TextInput({
           placeholder: 'name@example.com',
-          text: this.email
+          text: this.authState.email
         })
           .height(52)
           .fontSize(16)
@@ -44,8 +52,15 @@ export struct AuthLandingScreen {
           .borderRadius(16)
           .padding({ left: 14, right: 14 })
           .onChange((value: string) => {
-            this.email = value;
+            this.applyTransition(AuthStateMachine.reduce(this.authState, AuthAction.EmailChanged, value));
           });
+
+        if (this.authState.validationMessage.length > 0) {
+          Text(this.authState.validationMessage)
+            .fontSize(12)
+            .fontColor(AppTheme.dangerColor)
+            .width('100%');
+        }
 
         Button('继续使用主密码')
           .type(ButtonType.Capsule)
@@ -55,7 +70,7 @@ export struct AuthLandingScreen {
           .fontWeight(FontWeight.Medium)
           .backgroundColor(AppTheme.primaryColor)
           .onClick(() => {
-            this.emitPasswordSignIn();
+            this.handlePasswordSignIn();
           });
 
         Button('使用设备 Passkey 登录')
@@ -66,7 +81,7 @@ export struct AuthLandingScreen {
           .fontColor(AppTheme.primaryColor)
           .backgroundColor(AppTheme.primarySoftColor)
           .onClick(() => {
-            this.emitDevicePasskey();
+            this.handleDevicePasskey();
           });
       }
       .width('100%')
@@ -84,7 +99,7 @@ export struct AuthLandingScreen {
           .fontColor(AppTheme.titleColor)
           .backgroundColor(AppTheme.surfaceColor)
           .onClick(() => {
-            this.emitSsoSignIn();
+            this.handleSsoSignIn();
           });
 
         Button('自托管')
@@ -95,12 +110,48 @@ export struct AuthLandingScreen {
           .fontColor(AppTheme.titleColor)
           .backgroundColor(AppTheme.surfaceColor)
           .onClick(() => {
-            this.emitSelfHostedConfig();
+            this.handleSelfHostedConfig();
           });
       }
       .width('100%');
     }
     .width('100%');
+  }
+
+  private handlePasswordSignIn(): void {
+    let transition: AuthTransition = AuthStateMachine.reduce(this.authState, AuthAction.ContinueWithPassword);
+    this.applyTransition(transition);
+    if (transition.event.kind === AuthEventKind.NavigateToUnlock) {
+      this.emitPasswordSignIn();
+    }
+  }
+
+  private handleDevicePasskey(): void {
+    let transition: AuthTransition = AuthStateMachine.reduce(this.authState, AuthAction.DevicePasskeyRequested);
+    this.applyTransition(transition);
+    if (transition.event.kind === AuthEventKind.StartDevicePasskeyLogin) {
+      this.emitDevicePasskey();
+    }
+  }
+
+  private handleSsoSignIn(): void {
+    let transition: AuthTransition = AuthStateMachine.reduce(this.authState, AuthAction.SsoRequested);
+    this.applyTransition(transition);
+    if (transition.event.kind === AuthEventKind.StartSsoLogin) {
+      this.emitSsoSignIn();
+    }
+  }
+
+  private handleSelfHostedConfig(): void {
+    let transition: AuthTransition = AuthStateMachine.reduce(this.authState, AuthAction.SelfHostedRequested);
+    this.applyTransition(transition);
+    if (transition.event.kind === AuthEventKind.OpenServerConfig) {
+      this.emitSelfHostedConfig();
+    }
+  }
+
+  private applyTransition(transition: AuthTransition): void {
+    this.authState = transition.state;
   }
 
   private emitPasswordSignIn(): void {

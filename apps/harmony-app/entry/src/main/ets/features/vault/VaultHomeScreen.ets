@@ -1,4 +1,12 @@
 import { AppTheme } from '../../app/AppTheme';
+import {
+  VaultAction,
+  VaultEventKind,
+  VaultStateMachine,
+  VaultTransition,
+  VaultViewState,
+  createInitialVaultState
+} from './state/VaultStateMachine';
 
 class VaultPreviewItem {
   title: string;
@@ -25,6 +33,8 @@ const VAULT_ITEMS: VaultPreviewItem[] = [
 export struct VaultHomeScreen {
   onVerificationCodes?: () => void;
   onSystemIntegrations?: () => void;
+
+  @State private vaultState: VaultViewState = createInitialVaultState();
 
   build() {
     Column({ space: 16 }) {
@@ -107,7 +117,7 @@ export struct VaultHomeScreen {
         .fontColor(AppTheme.primaryColor)
         .backgroundColor(AppTheme.primarySoftColor)
         .onClick(() => {
-          this.emitVerificationCodes();
+          this.handleVerificationCodes();
         });
     }
     .width('100%')
@@ -134,7 +144,7 @@ export struct VaultHomeScreen {
           .fontColor(AppTheme.primaryColor)
           .backgroundColor(AppTheme.primarySoftColor)
           .onClick(() => {
-            this.emitSystemIntegrations();
+            this.handleSystemIntegrations();
           });
       }
       .width('100%');
@@ -182,6 +192,26 @@ export struct VaultHomeScreen {
     .backgroundColor(AppTheme.surfaceColor)
     .borderRadius(16)
     .border({ width: 1, color: AppTheme.dividerColor });
+  }
+
+  private handleVerificationCodes(): void {
+    let transition: VaultTransition = VaultStateMachine.reduce(this.vaultState, VaultAction.OpenVerificationCodes);
+    this.applyTransition(transition);
+    if (transition.event.kind === VaultEventKind.NavigateToVerificationCodes) {
+      this.emitVerificationCodes();
+    }
+  }
+
+  private handleSystemIntegrations(): void {
+    let transition: VaultTransition = VaultStateMachine.reduce(this.vaultState, VaultAction.OpenSystemIntegrations);
+    this.applyTransition(transition);
+    if (transition.event.kind === VaultEventKind.NavigateToSystemIntegrations) {
+      this.emitSystemIntegrations();
+    }
+  }
+
+  private applyTransition(transition: VaultTransition): void {
+    this.vaultState = transition.state;
   }
 
   private emitVerificationCodes(): void {
