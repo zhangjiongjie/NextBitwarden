@@ -1,1 +1,8 @@
 android/
+**/.hvigor/
+**/oh_modules/
+**/build/
+*.app
+*.hap
+*.har
+*.hsp

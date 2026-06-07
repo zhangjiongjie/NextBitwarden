@@ -1,0 +1,22 @@
+# NextBitwarden HarmonyOS NEXT
+
+这是 NextBitwarden 的 HarmonyOS NEXT 原生客户端工程。当前阶段只落地一期架构骨架，不包含真实账号登录、保险库解密、自动填充 provider 或 Passkey provider 实现。
+
+## 当前范围
+
+- `entry`：主应用入口，承载 Password Manager 一期能力。
+- `core/navigation`：根状态和外部入口模型，对齐 Android 的 Root Nav 思路。
+- `core/capability`：系统能力抽象，包括自动填充、凭据获取、Passkey、生物识别和推送同步。
+- `core/sdk`：Bitwarden internal SDK 接入边界，先定义 client 生命周期和 repository bridge。
+- `features`：Auth、Vault、Autofill、Passkey、Settings 的一期功能契约。
+
+## 签名策略
+
+仓库不提交任何本机签名材料、证书路径或加密口令。需要真机调试时，在 DevEco Studio 中生成本地调试签名，或在本机临时补充 `build-profile.json5` 的 signingConfig 后再构建。
+
+## 当前验证状态
+
+- 已创建 HarmonyOS NEXT Stage 模型工程骨架。
+- 已建立 Root 状态、Capability、SDK Bridge 和一期 Feature Contract。
+- `ohpm install --all` 已通过。
+- `hvigorw.bat --mode project assembleApp --no-daemon --stacktrace` 已通过，当前仅提示 `No signingConfig found for product default`。这符合仓库不提交签名材料的策略，后续真机安装前再补本地调试签名。

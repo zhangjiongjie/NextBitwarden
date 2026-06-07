@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "EntryAbility_label",
+      "value": "NextBitwarden"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "NextBitwarden 鸿蒙入口"
+    },
+    {
+      "name": "module_desc",
+      "value": "NextBitwarden 鸿蒙主模块"
+    }
+  ]
+}

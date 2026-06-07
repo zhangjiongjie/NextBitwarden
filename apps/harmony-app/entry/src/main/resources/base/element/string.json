@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "EntryAbility_label",
+      "value": "NextBitwarden"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "NextBitwarden HarmonyOS entry ability"
+    },
+    {
+      "name": "module_desc",
+      "value": "NextBitwarden HarmonyOS entry module"
+    }
+  ]
+}
