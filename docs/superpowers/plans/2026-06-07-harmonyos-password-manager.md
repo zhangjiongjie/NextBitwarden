@@ -579,6 +579,53 @@ export enum AppDestination {
 
 结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
 
+## 任务 10：Vault domain 与 mock repository 数据边界
+
+**文件：**
+- 创建：`apps/harmony-app/entry/src/main/ets/features/vault/data/VaultRepository.ets`
+- 创建：`apps/harmony-app/entry/src/ohosTest/ets/test/VaultRepository.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/List.test.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/features/vault/VaultHomeScreen.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/features/vault/VerificationCodesScreen.ets`
+
+- [x] **步骤 1：先写 Vault repository 测试**
+
+测试覆盖：
+
+- 保险库摘要必须由 seeded login / TOTP 条目计算。
+- Vault 列表条目必须保留类型、收藏和 TOTP 标记，方便后续映射 SDK 数据模型。
+- 两步验证码列表只能来自带 TOTP 的登录项。
+
+- [x] **步骤 2：验证红灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：构建失败，错误为找不到 `features/vault/data/VaultRepository`，证明测试正在约束尚未实现的 Vault 数据边界。
+
+- [x] **步骤 3：实现最小 mock repository**
+
+`VaultRepository.ets` 定义：
+
+- `VaultItemType`
+- `VaultSummary`
+- `VaultListItem`
+- `VerificationCodeItem`
+- `VaultHomeViewState`
+- `VaultRepository`
+- `PreviewVaultRepository`
+
+当前 repository 只提供 mock 数据，不做真实同步、解密、TOTP 计算或 SDK 调用。
+
+- [x] **步骤 4：接入首批 Vault 页面**
+
+`VaultHomeScreen` 现在从 `PreviewVaultRepository` 读取摘要和条目列表；`VerificationCodesScreen` 从同一 repository 读取带 TOTP 的登录项并生成占位验证码列表。
+
+- [x] **步骤 5：验证绿灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
+
 ## 自检
 
 - 规格覆盖度：计划覆盖 `Password Manager` 一期主应用、TOTP、设备 Passkey 登录、自动填充、凭据获取、SDK bridge、生物识别、推送同步、自托管 / SSO / trusted device / key connector 边界。

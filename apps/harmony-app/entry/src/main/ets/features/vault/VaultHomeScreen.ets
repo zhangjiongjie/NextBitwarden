@@ -1,5 +1,11 @@
 import { AppTheme } from '../../app/AppTheme';
 import {
+  PreviewVaultRepository,
+  VaultHomeViewState,
+  VaultListItem,
+  vaultItemTypeLabel
+} from './data/VaultRepository';
+import {
   VaultAction,
   VaultEventKind,
   VaultStateMachine,
@@ -8,26 +14,7 @@ import {
   createInitialVaultState
 } from './state/VaultStateMachine';
 
-class VaultPreviewItem {
-  title: string;
-  subtitle: string;
-  typeLabel: string;
-  favorite: boolean;
-
-  constructor(title: string, subtitle: string, typeLabel: string, favorite: boolean) {
-    this.title = title;
-    this.subtitle = subtitle;
-    this.typeLabel = typeLabel;
-    this.favorite = favorite;
-  }
-}
-
-const VAULT_ITEMS: VaultPreviewItem[] = [
-  new VaultPreviewItem('Bitwarden', 'vault.bitwarden.com', '登录', true),
-  new VaultPreviewItem('GitHub', 'github.com', '登录 + TOTP', true),
-  new VaultPreviewItem('公司 VPN', '需要 SSO / trusted device', '登录', false),
-  new VaultPreviewItem('恢复代码', '安全笔记', '安全笔记', false)
-];
+const VAULT_REPOSITORY: PreviewVaultRepository = new PreviewVaultRepository();
 
 @Component
 export struct VaultHomeScreen {
@@ -35,6 +22,7 @@ export struct VaultHomeScreen {
   onSystemIntegrations?: () => void;
 
   @State private vaultState: VaultViewState = createInitialVaultState();
+  private homeViewState: VaultHomeViewState = VAULT_REPOSITORY.getHomeViewState();
 
   build() {
     Column({ space: 16 }) {
@@ -55,9 +43,9 @@ export struct VaultHomeScreen {
         .width('100%');
 
       Row({ space: 10 }) {
-        this.buildMetric('登录', '12');
-        this.buildMetric('TOTP', '3');
-        this.buildMetric('Send', '预留');
+        this.buildMetric('登录', this.homeViewState.summary.loginCount.toString());
+        this.buildMetric('TOTP', this.homeViewState.summary.totpCount.toString());
+        this.buildMetric('Send', this.homeViewState.summary.sendStatus);
       }
       .width('100%');
     }
@@ -94,7 +82,7 @@ export struct VaultHomeScreen {
           .fontColor(AppTheme.titleColor)
           .layoutWeight(1);
 
-        Text('3')
+        Text(this.homeViewState.summary.totpCount.toString())
           .fontSize(14)
           .fontColor(AppTheme.primaryColor)
           .padding({ left: 10, right: 10, top: 4, bottom: 4 })
@@ -149,15 +137,15 @@ export struct VaultHomeScreen {
       }
       .width('100%');
 
-      ForEach(VAULT_ITEMS, (item: VaultPreviewItem) => {
+      ForEach(this.homeViewState.items, (item: VaultListItem) => {
         this.buildVaultItem(item);
-      }, (item: VaultPreviewItem) => item.title);
+      }, (item: VaultListItem) => item.id);
     }
     .width('100%');
   }
 
   @Builder
-  private buildVaultItem(item: VaultPreviewItem): void {
+  private buildVaultItem(item: VaultListItem): void {
     Row({ space: 12 }) {
       Text(item.favorite ? '★' : '•')
         .fontSize(20)
@@ -180,7 +168,7 @@ export struct VaultHomeScreen {
       }
       .layoutWeight(1);
 
-      Text(item.typeLabel)
+      Text(item.hasTotp ? vaultItemTypeLabel(item.type) + ' + TOTP' : vaultItemTypeLabel(item.type))
         .fontSize(12)
         .fontColor(AppTheme.primaryColor)
         .padding({ left: 8, right: 8, top: 4, bottom: 4 })

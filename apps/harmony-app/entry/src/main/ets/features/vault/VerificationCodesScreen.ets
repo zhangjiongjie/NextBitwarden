@@ -1,28 +1,12 @@
 import { AppTheme } from '../../app/AppTheme';
+import { PreviewVaultRepository, VerificationCodeItem } from './data/VaultRepository';
 
-class VerificationPreviewItem {
-  issuer: string;
-  account: string;
-  codePreview: string;
-  remaining: string;
-
-  constructor(issuer: string, account: string, codePreview: string, remaining: string) {
-    this.issuer = issuer;
-    this.account = account;
-    this.codePreview = codePreview;
-    this.remaining = remaining;
-  }
-}
-
-const VERIFICATION_ITEMS: VerificationPreviewItem[] = [
-  new VerificationPreviewItem('GitHub', 'name@example.com', '000 000', '示例'),
-  new VerificationPreviewItem('Bitwarden', 'work@example.com', '000 000', '示例'),
-  new VerificationPreviewItem('公司 VPN', 'employee', '000 000', '示例')
-];
+const VAULT_REPOSITORY: PreviewVaultRepository = new PreviewVaultRepository();
 
 @Component
 export struct VerificationCodesScreen {
   onBackToVault?: () => void;
+  private verificationItems: VerificationCodeItem[] = VAULT_REPOSITORY.getVerificationCodes();
 
   build() {
     Column({ space: 14 }) {
@@ -51,15 +35,15 @@ export struct VerificationCodesScreen {
         .lineHeight(20)
         .width('100%');
 
-      ForEach(VERIFICATION_ITEMS, (item: VerificationPreviewItem) => {
+      ForEach(this.verificationItems, (item: VerificationCodeItem) => {
         this.buildVerificationItem(item);
-      }, (item: VerificationPreviewItem) => item.issuer + item.account);
+      }, (item: VerificationCodeItem) => item.itemId);
     }
     .width('100%');
   }
 
   @Builder
-  private buildVerificationItem(item: VerificationPreviewItem): void {
+  private buildVerificationItem(item: VerificationCodeItem): void {
     Row({ space: 12 }) {
       Column({ space: 4 }) {
         Text(item.issuer)
@@ -67,7 +51,7 @@ export struct VerificationCodesScreen {
           .fontWeight(FontWeight.Medium)
           .fontColor(AppTheme.titleColor);
 
-        Text(item.account)
+        Text(item.accountName)
           .fontSize(13)
           .fontColor(AppTheme.bodyColor);
       }
@@ -79,7 +63,7 @@ export struct VerificationCodesScreen {
           .fontWeight(FontWeight.Bold)
           .fontColor(AppTheme.primaryColor);
 
-        Text(item.remaining)
+        Text(item.remainingLabel)
           .fontSize(12)
           .fontColor(AppTheme.mutedColor);
       }
