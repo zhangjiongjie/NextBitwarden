@@ -1,6 +1,7 @@
 export enum AppDestination {
   SignIn = 'signIn',
   Unlock = 'unlock',
+  TotpChallenge = 'totpChallenge',
   Vault = 'vault',
   VerificationCodes = 'verificationCodes',
   SystemIntegrations = 'systemIntegrations',
@@ -13,6 +14,8 @@ export function destinationTitle(destination: AppDestination): string {
       return '登录';
     case AppDestination.Unlock:
       return '解锁保险库';
+    case AppDestination.TotpChallenge:
+      return 'TOTP 二步验证';
     case AppDestination.Vault:
       return '保险库';
     case AppDestination.VerificationCodes:

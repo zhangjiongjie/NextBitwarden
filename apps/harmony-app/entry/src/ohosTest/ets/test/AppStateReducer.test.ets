@@ -28,6 +28,24 @@ export default function appStateReducerTest(): void {
       expect(next.destination).assertEqual(AppDestination.Vault);
     });
 
+    it('routes master password success to the totp challenge before vault unlock', 0, () => {
+      let state: AppState = new AppState(RootState.Locked, AppDestination.Unlock);
+
+      let next: AppState = AppStateReducer.reduce(state, AppAction.MasterPasswordRequiresTotp);
+
+      expect(next.rootState).assertEqual(RootState.Locked);
+      expect(next.destination).assertEqual(AppDestination.TotpChallenge);
+    });
+
+    it('routes successful totp challenge to the vault home screen', 0, () => {
+      let state: AppState = new AppState(RootState.Locked, AppDestination.TotpChallenge);
+
+      let next: AppState = AppStateReducer.reduce(state, AppAction.TotpSucceeded);
+
+      expect(next.rootState).assertEqual(RootState.Unlocked);
+      expect(next.destination).assertEqual(AppDestination.Vault);
+    });
+
     it('marks system integration navigation as a system entry state', 0, () => {
       let state: AppState = new AppState(RootState.Unlocked, AppDestination.Vault);
 

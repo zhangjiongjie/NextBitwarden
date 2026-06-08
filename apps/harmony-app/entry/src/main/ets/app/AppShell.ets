@@ -1,6 +1,7 @@
 import { AppDestination, destinationTitle } from '../core/navigation/AppDestination';
 import { rootStateDescription, rootStateTitle } from '../core/navigation/RootState';
 import { AuthLandingScreen } from '../features/auth/AuthLandingScreen';
+import { TotpLoginChallengeScreen } from '../features/auth/TotpLoginChallengeScreen';
 import { VaultUnlockScreen } from '../features/auth/VaultUnlockScreen';
 import { SystemIntegrationScreen } from '../features/platform/SystemIntegrationScreen';
 import { SettingsOverviewScreen } from '../features/settings/SettingsOverviewScreen';
@@ -113,11 +114,23 @@ export struct AppShell {
         onUnlocked: () => {
           this.dispatch(AppAction.UnlockSucceeded);
         },
+        onTotpRequired: () => {
+          this.dispatch(AppAction.MasterPasswordRequiresTotp);
+        },
         onUseBiometric: () => {
           this.dispatch(AppAction.UnlockSucceeded);
         },
         onBackToLogin: () => {
           this.dispatch(AppAction.BackToLogin);
+        }
+      });
+    } else if (this.destination === AppDestination.TotpChallenge) {
+      TotpLoginChallengeScreen({
+        onTotpAccepted: () => {
+          this.dispatch(AppAction.TotpSucceeded);
+        },
+        onBackToUnlock: () => {
+          this.dispatch(AppAction.ContinueWithPassword);
         }
       });
     } else if (this.destination === AppDestination.Vault) {

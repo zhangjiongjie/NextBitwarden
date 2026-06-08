@@ -774,6 +774,56 @@ export enum AppDestination {
 
 结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
 
+## 任务 14：TOTP 登录挑战页和导航边界
+
+**文件：**
+- 修改：`apps/harmony-app/entry/src/main/ets/core/navigation/AppDestination.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/app/state/AppStateReducer.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/app/AppShell.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/features/auth/data/AuthRepository.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/features/auth/VaultUnlockScreen.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/auth/TotpLoginChallengeScreen.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/AppStateReducer.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/AuthRepository.test.ets`
+- 修改：`apps/harmony-app/README.md`
+
+- [x] **步骤 1：先写 App / Auth 红灯测试**
+
+测试覆盖：
+
+- 主密码 preview 成功后不能直接进入保险库，必须先进入 `TotpChallenge`。
+- TOTP 挑战成功后才进入 `Unlocked / Vault`。
+- 空 TOTP 码返回 validation error，并停留在 `WaitingForTotp`。
+- 非空 TOTP 码在 preview repository 中进入 `VaultUnlocked`。
+
+- [x] **步骤 2：验证红灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：构建失败，错误为缺少 `AppAction.MasterPasswordRequiresTotp`、`AppAction.TotpSucceeded`、`AppDestination.TotpChallenge` 和 `submitTotpSecondFactor()`，证明测试正在约束尚未实现的 TOTP 登录挑战边界。
+
+- [x] **步骤 3：实现最小 TOTP 登录挑战边界**
+
+本轮新增 / 调整：
+
+- `AppDestination.TotpChallenge`
+- `AppAction.MasterPasswordRequiresTotp`
+- `AppAction.TotpSucceeded`
+- `PreviewAuthRepository.submitTotpSecondFactor()`
+- `TotpLoginChallengeScreen`
+
+当前仍是 preview repository，不做真实 TOTP 校验、服务器登录挑战或保险库解密。后续真实实现必须由 Bitwarden SDK Auth bridge 接管。
+
+- [x] **步骤 4：接入解锁页和 AppShell**
+
+`VaultUnlockScreen` 在主密码 preview 成功后派发 `onTotpRequired`，`AppShell` 进入 `TotpLoginChallengeScreen`；验证码提交成功后才派发 `TotpSucceeded` 进入保险库。
+
+- [x] **步骤 5：验证绿灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
+
 ## 自检
 
 - 规格覆盖度：计划覆盖 `Password Manager` 一期主应用、TOTP、设备 Passkey 登录、自动填充、凭据获取、SDK bridge、生物识别、推送同步、自托管 / SSO / trusted device / key connector 边界，以及 Premium Web 开放、mTLS 预留和 Authenticator 扩展边界。

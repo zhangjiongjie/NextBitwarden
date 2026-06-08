@@ -52,5 +52,24 @@ export default function authRepositoryTest(): void {
       expect(session.status).assertEqual(AuthOperationStatus.CapabilityStart);
       expect(session.stage).assertEqual(AuthFlowStage.DevicePasskey);
     });
+
+    it('validates blank totp code before unlocking the preview vault session', 0, () => {
+      let repository: PreviewAuthRepository = new PreviewAuthRepository();
+
+      let session: AuthSessionPreview = repository.submitTotpSecondFactor('name@example.com', '');
+
+      expect(session.status).assertEqual(AuthOperationStatus.ValidationError);
+      expect(session.stage).assertEqual(AuthFlowStage.WaitingForTotp);
+      expect(session.validationMessage).assertEqual('请输入 TOTP 两步验证码');
+    });
+
+    it('unlocks the preview vault session after a non-empty totp code', 0, () => {
+      let repository: PreviewAuthRepository = new PreviewAuthRepository();
+
+      let session: AuthSessionPreview = repository.submitTotpSecondFactor('name@example.com', '123456');
+
+      expect(session.status).assertEqual(AuthOperationStatus.Unlocked);
+      expect(session.stage).assertEqual(AuthFlowStage.VaultUnlocked);
+    });
   });
 }

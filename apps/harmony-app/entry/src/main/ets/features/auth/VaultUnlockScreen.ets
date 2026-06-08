@@ -11,6 +11,7 @@ const AUTH_REPOSITORY: PreviewAuthRepository = new PreviewAuthRepository();
 @Component
 export struct VaultUnlockScreen {
   onUnlocked?: () => void;
+  onTotpRequired?: () => void;
   onUseBiometric?: () => void;
   onBackToLogin?: () => void;
 
@@ -118,6 +119,7 @@ export struct VaultUnlockScreen {
     this.validationMessage = session.status === AuthOperationStatus.ValidationError ? session.validationMessage : '';
     if (session.stage === AuthFlowStage.WaitingForTotp) {
       this.nextStepMessage = session.validationMessage;
+      this.emitTotpRequired();
     } else if (session.stage === AuthFlowStage.VaultUnlocked) {
       this.emitUnlocked();
     }
@@ -126,6 +128,12 @@ export struct VaultUnlockScreen {
   private emitUnlocked(): void {
     if (this.onUnlocked) {
       this.onUnlocked();
+    }
+  }
+
+  private emitTotpRequired(): void {
+    if (this.onTotpRequired) {
+      this.onTotpRequired();
     }
   }
 

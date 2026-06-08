@@ -6,6 +6,8 @@ export enum AppAction {
   DevicePasskeySucceeded = 'devicePasskeySucceeded',
   SsoRequested = 'ssoRequested',
   SelfHostedRequested = 'selfHostedRequested',
+  MasterPasswordRequiresTotp = 'masterPasswordRequiresTotp',
+  TotpSucceeded = 'totpSucceeded',
   UnlockSucceeded = 'unlockSucceeded',
   BackToLogin = 'backToLogin',
   OpenSignIn = 'openSignIn',
@@ -34,7 +36,10 @@ export class AppStateReducer {
     switch (action) {
       case AppAction.ContinueWithPassword:
         return new AppState(RootState.Locked, AppDestination.Unlock);
+      case AppAction.MasterPasswordRequiresTotp:
+        return new AppState(RootState.Locked, AppDestination.TotpChallenge);
       case AppAction.DevicePasskeySucceeded:
+      case AppAction.TotpSucceeded:
       case AppAction.UnlockSucceeded:
       case AppAction.OpenVault:
         return new AppState(RootState.Unlocked, AppDestination.Vault);

@@ -59,6 +59,8 @@ export interface AuthRepository {
 
   unlockWithMasterPassword(email: string, masterPassword: string): AuthSessionPreview;
 
+  submitTotpSecondFactor(email: string, code: string): AuthSessionPreview;
+
   startDevicePasskeyLogin(): AuthSessionPreview;
 
   startSsoLogin(): AuthSessionPreview;
@@ -125,6 +127,19 @@ export class PreviewAuthRepository implements AuthRepository {
       AuthOperationStatus.RequiresSecondFactor,
       '需要 TOTP 两步验证码'
     );
+  }
+
+  submitTotpSecondFactor(email: string, code: string): AuthSessionPreview {
+    if (this.isBlank(code)) {
+      return new AuthSessionPreview(
+        email,
+        AuthFlowStage.WaitingForTotp,
+        AuthOperationStatus.ValidationError,
+        '请输入 TOTP 两步验证码'
+      );
+    }
+
+    return new AuthSessionPreview(email, AuthFlowStage.VaultUnlocked, AuthOperationStatus.Unlocked, '');
   }
 
   startDevicePasskeyLogin(): AuthSessionPreview {
