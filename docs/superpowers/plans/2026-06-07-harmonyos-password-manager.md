@@ -1022,6 +1022,61 @@ export enum AppDestination {
 
 结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
 
+## 任务 19：trusted device 登录审批页面和数据边界
+
+**文件：**
+- 修改：`apps/harmony-app/entry/src/main/ets/core/navigation/AppDestination.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/app/state/AppStateReducer.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/app/AppShell.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/features/auth/AuthLandingScreen.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/features/auth/state/AuthStateMachine.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/features/auth/data/AuthRepository.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/auth/data/TrustedDeviceApprovalRepository.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/auth/TrustedDeviceApprovalScreen.ets`
+- 创建：`apps/harmony-app/entry/src/ohosTest/ets/test/TrustedDeviceApprovalRepository.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/AppStateReducer.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/AuthRepository.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/AuthStateMachine.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/List.test.ets`
+- 修改：`apps/harmony-app/README.md`
+
+- [x] **步骤 1：先写 trusted device 红灯测试**
+
+测试覆盖：
+
+- `TrustedDeviceApprovalRequested` 必须从登录态进入独立 `TrustedDeviceApproval` 目的地。
+- `TrustedDeviceApproved` 才能进入保险库首页。
+- Auth repository 必须暴露 `TrustedDevice` 为首发登录方式，并通过独立 capability stage 启动。
+- Auth state machine 必须产生 `StartTrustedDeviceApproval` 事件。
+- 登录审批 repository 必须记录 PushKit 优先、前台刷新 fallback 和手动刷新可用。
+
+- [x] **步骤 2：验证红灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：构建失败，错误为缺少 `AppAction.TrustedDeviceApprovalRequested`、`AppAction.TrustedDeviceApproved`、`AppDestination.TrustedDeviceApproval`、`AuthFlowStage.TrustedDeviceApproval`、`AuthAction.TrustedDeviceApprovalRequested`、`AuthEventKind.StartTrustedDeviceApproval` 和 `features/auth/data/TrustedDeviceApprovalRepository`，证明测试正在约束尚未实现的登录审批边界。
+
+- [x] **步骤 3：实现最小 trusted device approval repository**
+
+本轮新增：
+
+- `TrustedDeviceApprovalStatus`
+- `TrustedDeviceApprovalSession`
+- `TrustedDeviceApprovalRepository`
+- `PreviewTrustedDeviceApprovalRepository`
+
+当前只表达登录审批状态、PushKit 优先路径、前台刷新 fallback 和手动刷新能力，不调用真实 Push Kit，不轮询 Bitwarden 服务端，也不处理真实 trusted device approval token。
+
+- [x] **步骤 4：接入独立登录审批页**
+
+`AuthLandingScreen` 新增“通过已登录设备审批”入口，现在通过 `TrustedDeviceApprovalRequested` 进入 `TrustedDeviceApprovalScreen`；页面展示登录审批等待状态，并提供 preview 模拟审批通过入口用于状态流闭环。
+
+- [x] **步骤 5：验证绿灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
+
 ## 自检
 
 - 规格覆盖度：计划覆盖 `Password Manager` 一期主应用、TOTP、设备 Passkey 登录、自动填充、凭据获取、SDK bridge、生物识别、推送同步、自托管 / SSO / trusted device / key connector 边界，以及 Premium Web 开放、mTLS 预留和 Authenticator 扩展边界。

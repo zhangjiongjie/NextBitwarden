@@ -52,5 +52,14 @@ export default function authStateMachineTest(): void {
       expect(next.state.step).assertEqual(AuthStep.DevicePasskey);
       expect(next.event.kind).assertEqual(AuthEventKind.StartDevicePasskeyLogin);
     });
+
+    it('starts trusted device approval from auth', 0, () => {
+      let state: AuthViewState = createInitialAuthState();
+
+      let next: AuthTransition = AuthStateMachine.reduce(state, AuthAction.TrustedDeviceApprovalRequested);
+
+      expect(next.state.step).assertEqual(AuthStep.TrustedDeviceApproval);
+      expect(next.event.kind).assertEqual(AuthEventKind.StartTrustedDeviceApproval);
+    });
   });
 }

@@ -3,6 +3,7 @@ export enum AuthStep {
   MasterPassword = 'masterPassword',
   TotpSecondFactor = 'totpSecondFactor',
   DevicePasskey = 'devicePasskey',
+  TrustedDeviceApproval = 'trustedDeviceApproval',
   Sso = 'sso',
   ServerConfig = 'serverConfig'
 }
@@ -11,6 +12,7 @@ export enum AuthAction {
   EmailChanged = 'emailChanged',
   ContinueWithPassword = 'continueWithPassword',
   DevicePasskeyRequested = 'devicePasskeyRequested',
+  TrustedDeviceApprovalRequested = 'trustedDeviceApprovalRequested',
   SsoRequested = 'ssoRequested',
   SelfHostedRequested = 'selfHostedRequested',
   TotpSubmitted = 'totpSubmitted',
@@ -22,6 +24,7 @@ export enum AuthEventKind {
   RequireEmail = 'requireEmail',
   NavigateToUnlock = 'navigateToUnlock',
   StartDevicePasskeyLogin = 'startDevicePasskeyLogin',
+  StartTrustedDeviceApproval = 'startTrustedDeviceApproval',
   StartSsoLogin = 'startSsoLogin',
   OpenServerConfig = 'openServerConfig',
   SubmitTotpCode = 'submitTotpCode'
@@ -77,6 +80,11 @@ export class AuthStateMachine {
         return new AuthTransition(
           new AuthViewState(AuthStep.DevicePasskey, state.email, ''),
           new AuthEvent(AuthEventKind.StartDevicePasskeyLogin, '启动设备内置 Passkey 登录。')
+        );
+      case AuthAction.TrustedDeviceApprovalRequested:
+        return new AuthTransition(
+          new AuthViewState(AuthStep.TrustedDeviceApproval, state.email, ''),
+          new AuthEvent(AuthEventKind.StartTrustedDeviceApproval, '启动 trusted device 登录审批。')
         );
       case AuthAction.SsoRequested:
         return new AuthTransition(

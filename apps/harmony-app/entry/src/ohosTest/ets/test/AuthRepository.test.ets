@@ -19,7 +19,9 @@ export default function authRepositoryTest(): void {
       expect(methods[0].method).assertEqual(AuthMethod.Password);
       expect(methods[1].method).assertEqual(AuthMethod.TotpSecondFactor);
       expect(methods[2].method).assertEqual(AuthMethod.DevicePasskey);
+      expect(methods[4].method).assertEqual(AuthMethod.TrustedDevice);
       expect(methods[0].firstReleaseRequired).assertTrue();
+      expect(methods[4].firstReleaseRequired).assertTrue();
     });
 
     it('starts password login only after an email is available', 0, () => {
@@ -51,6 +53,16 @@ export default function authRepositoryTest(): void {
 
       expect(session.status).assertEqual(AuthOperationStatus.CapabilityStart);
       expect(session.stage).assertEqual(AuthFlowStage.DevicePasskey);
+    });
+
+    it('starts trusted device approval through a dedicated capability stage', 0, () => {
+      let repository: PreviewAuthRepository = new PreviewAuthRepository();
+
+      let session: AuthSessionPreview = repository.startTrustedDeviceApproval();
+
+      expect(session.status).assertEqual(AuthOperationStatus.CapabilityStart);
+      expect(session.stage).assertEqual(AuthFlowStage.TrustedDeviceApproval);
+      expect(session.validationMessage).assertEqual('等待已登录设备审批。');
     });
 
     it('validates blank totp code before unlocking the preview vault session', 0, () => {

@@ -1,6 +1,7 @@
 export enum AppDestination {
   SignIn = 'signIn',
   DevicePasskeyLogin = 'devicePasskeyLogin',
+  TrustedDeviceApproval = 'trustedDeviceApproval',
   Unlock = 'unlock',
   BiometricUnlock = 'biometricUnlock',
   TotpChallenge = 'totpChallenge',
@@ -18,6 +19,8 @@ export function destinationTitle(destination: AppDestination): string {
       return '登录';
     case AppDestination.DevicePasskeyLogin:
       return '设备 Passkey';
+    case AppDestination.TrustedDeviceApproval:
+      return '登录审批';
     case AppDestination.Unlock:
       return '解锁保险库';
     case AppDestination.BiometricUnlock:

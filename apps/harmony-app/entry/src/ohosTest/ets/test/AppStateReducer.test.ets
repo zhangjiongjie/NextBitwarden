@@ -73,6 +73,24 @@ export default function appStateReducerTest(): void {
       expect(next.destination).assertEqual(AppDestination.DevicePasskeyLogin);
     });
 
+    it('routes trusted device approval requests to a dedicated login approval screen', 0, () => {
+      let state: AppState = createInitialAppState();
+
+      let next: AppState = AppStateReducer.reduce(state, AppAction.TrustedDeviceApprovalRequested);
+
+      expect(next.rootState).assertEqual(RootState.SignedOut);
+      expect(next.destination).assertEqual(AppDestination.TrustedDeviceApproval);
+    });
+
+    it('routes approved trusted device sessions to the vault home screen', 0, () => {
+      let state: AppState = new AppState(RootState.SignedOut, AppDestination.TrustedDeviceApproval);
+
+      let next: AppState = AppStateReducer.reduce(state, AppAction.TrustedDeviceApproved);
+
+      expect(next.rootState).assertEqual(RootState.Unlocked);
+      expect(next.destination).assertEqual(AppDestination.Vault);
+    });
+
     it('marks system integration navigation as a system entry state', 0, () => {
       let state: AppState = new AppState(RootState.Unlocked, AppDestination.Vault);
 

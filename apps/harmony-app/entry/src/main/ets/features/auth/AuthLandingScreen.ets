@@ -15,6 +15,7 @@ const AUTH_REPOSITORY: PreviewAuthRepository = new PreviewAuthRepository();
 export struct AuthLandingScreen {
   onPasswordSignIn?: () => void;
   onDevicePasskey?: () => void;
+  onTrustedDeviceApproval?: () => void;
   onSsoSignIn?: () => void;
   onSelfHostedConfig?: () => void;
 
@@ -86,6 +87,17 @@ export struct AuthLandingScreen {
           .backgroundColor(AppTheme.primarySoftColor)
           .onClick(() => {
             this.handleDevicePasskey();
+          });
+
+        Button('通过已登录设备审批')
+          .type(ButtonType.Capsule)
+          .width('100%')
+          .height(46)
+          .fontSize(15)
+          .fontColor(AppTheme.primaryColor)
+          .backgroundColor(AppTheme.primarySoftColor)
+          .onClick(() => {
+            this.handleTrustedDeviceApproval();
           });
       }
       .width('100%')
@@ -183,6 +195,18 @@ export struct AuthLandingScreen {
     }
   }
 
+  private handleTrustedDeviceApproval(): void {
+    AUTH_REPOSITORY.startTrustedDeviceApproval();
+    let transition: AuthTransition = AuthStateMachine.reduce(
+      this.authState,
+      AuthAction.TrustedDeviceApprovalRequested
+    );
+    this.applyTransition(transition);
+    if (transition.event.kind === AuthEventKind.StartTrustedDeviceApproval) {
+      this.emitTrustedDeviceApproval();
+    }
+  }
+
   private handleSsoSignIn(): void {
     AUTH_REPOSITORY.startSsoLogin();
     let transition: AuthTransition = AuthStateMachine.reduce(this.authState, AuthAction.SsoRequested);
@@ -214,6 +238,12 @@ export struct AuthLandingScreen {
   private emitDevicePasskey(): void {
     if (this.onDevicePasskey) {
       this.onDevicePasskey();
+    }
+  }
+
+  private emitTrustedDeviceApproval(): void {
+    if (this.onTrustedDeviceApproval) {
+      this.onTrustedDeviceApproval();
     }
   }
 

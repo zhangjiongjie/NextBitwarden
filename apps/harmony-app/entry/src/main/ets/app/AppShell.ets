@@ -5,6 +5,7 @@ import { BiometricUnlockScreen } from '../features/auth/BiometricUnlockScreen';
 import { DevicePasskeyLoginScreen } from '../features/auth/DevicePasskeyLoginScreen';
 import { SsoWebAuthScreen } from '../features/auth/SsoWebAuthScreen';
 import { TotpLoginChallengeScreen } from '../features/auth/TotpLoginChallengeScreen';
+import { TrustedDeviceApprovalScreen } from '../features/auth/TrustedDeviceApprovalScreen';
 import { VaultUnlockScreen } from '../features/auth/VaultUnlockScreen';
 import { SystemIntegrationScreen } from '../features/platform/SystemIntegrationScreen';
 import { ServerConfigScreen } from '../features/settings/ServerConfigScreen';
@@ -106,6 +107,9 @@ export struct AppShell {
         onDevicePasskey: () => {
           this.dispatch(AppAction.DevicePasskeyRequested);
         },
+        onTrustedDeviceApproval: () => {
+          this.dispatch(AppAction.TrustedDeviceApprovalRequested);
+        },
         onSsoSignIn: () => {
           this.dispatch(AppAction.SsoRequested);
         },
@@ -123,6 +127,15 @@ export struct AppShell {
       DevicePasskeyLoginScreen({
         onPasskeyAccepted: () => {
           this.dispatch(AppAction.DevicePasskeySucceeded);
+        },
+        onBackToSignIn: () => {
+          this.dispatch(AppAction.OpenSignIn);
+        }
+      });
+    } else if (this.destination === AppDestination.TrustedDeviceApproval) {
+      TrustedDeviceApprovalScreen({
+        onApproved: () => {
+          this.dispatch(AppAction.TrustedDeviceApproved);
         },
         onBackToSignIn: () => {
           this.dispatch(AppAction.OpenSignIn);
@@ -246,6 +259,8 @@ export struct AppShell {
         return AppAction.OpenSignIn;
       case AppDestination.DevicePasskeyLogin:
         return AppAction.DevicePasskeyRequested;
+      case AppDestination.TrustedDeviceApproval:
+        return AppAction.TrustedDeviceApprovalRequested;
       case AppDestination.ServerConfig:
         return AppAction.SelfHostedRequested;
       case AppDestination.SsoWebAuth:

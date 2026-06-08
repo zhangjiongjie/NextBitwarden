@@ -12,6 +12,7 @@ export enum AuthFlowStage {
   WaitingForTotp = 'waitingForTotp',
   VaultUnlocked = 'vaultUnlocked',
   DevicePasskey = 'devicePasskey',
+  TrustedDeviceApproval = 'trustedDeviceApproval',
   Sso = 'sso',
   ServerConfig = 'serverConfig'
 }
@@ -62,6 +63,8 @@ export interface AuthRepository {
   submitTotpSecondFactor(email: string, code: string): AuthSessionPreview;
 
   startDevicePasskeyLogin(): AuthSessionPreview;
+
+  startTrustedDeviceApproval(): AuthSessionPreview;
 
   startSsoLogin(): AuthSessionPreview;
 
@@ -144,6 +147,15 @@ export class PreviewAuthRepository implements AuthRepository {
 
   startDevicePasskeyLogin(): AuthSessionPreview {
     return new AuthSessionPreview('', AuthFlowStage.DevicePasskey, AuthOperationStatus.CapabilityStart, '');
+  }
+
+  startTrustedDeviceApproval(): AuthSessionPreview {
+    return new AuthSessionPreview(
+      '',
+      AuthFlowStage.TrustedDeviceApproval,
+      AuthOperationStatus.CapabilityStart,
+      '等待已登录设备审批。'
+    );
   }
 
   startSsoLogin(): AuthSessionPreview {

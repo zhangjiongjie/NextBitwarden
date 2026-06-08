@@ -7,6 +7,8 @@ export enum AppAction {
   BiometricUnlockSucceeded = 'biometricUnlockSucceeded',
   DevicePasskeyRequested = 'devicePasskeyRequested',
   DevicePasskeySucceeded = 'devicePasskeySucceeded',
+  TrustedDeviceApprovalRequested = 'trustedDeviceApprovalRequested',
+  TrustedDeviceApproved = 'trustedDeviceApproved',
   SsoRequested = 'ssoRequested',
   SelfHostedRequested = 'selfHostedRequested',
   MasterPasswordRequiresTotp = 'masterPasswordRequiresTotp',
@@ -43,9 +45,12 @@ export class AppStateReducer {
         return new AppState(RootState.Locked, AppDestination.BiometricUnlock);
       case AppAction.DevicePasskeyRequested:
         return new AppState(RootState.SignedOut, AppDestination.DevicePasskeyLogin);
+      case AppAction.TrustedDeviceApprovalRequested:
+        return new AppState(RootState.SignedOut, AppDestination.TrustedDeviceApproval);
       case AppAction.MasterPasswordRequiresTotp:
         return new AppState(RootState.Locked, AppDestination.TotpChallenge);
       case AppAction.DevicePasskeySucceeded:
+      case AppAction.TrustedDeviceApproved:
       case AppAction.BiometricUnlockSucceeded:
       case AppAction.TotpSucceeded:
       case AppAction.UnlockSucceeded:
