@@ -46,6 +46,15 @@ export default function appStateReducerTest(): void {
       expect(next.destination).assertEqual(AppDestination.Vault);
     });
 
+    it('routes device passkey requests to a dedicated platform login screen', 0, () => {
+      let state: AppState = createInitialAppState();
+
+      let next: AppState = AppStateReducer.reduce(state, AppAction.DevicePasskeyRequested);
+
+      expect(next.rootState).assertEqual(RootState.SignedOut);
+      expect(next.destination).assertEqual(AppDestination.DevicePasskeyLogin);
+    });
+
     it('marks system integration navigation as a system entry state', 0, () => {
       let state: AppState = new AppState(RootState.Unlocked, AppDestination.Vault);
 

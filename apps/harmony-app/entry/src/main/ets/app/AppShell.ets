@@ -1,6 +1,7 @@
 import { AppDestination, destinationTitle } from '../core/navigation/AppDestination';
 import { rootStateDescription, rootStateTitle } from '../core/navigation/RootState';
 import { AuthLandingScreen } from '../features/auth/AuthLandingScreen';
+import { DevicePasskeyLoginScreen } from '../features/auth/DevicePasskeyLoginScreen';
 import { SsoWebAuthScreen } from '../features/auth/SsoWebAuthScreen';
 import { TotpLoginChallengeScreen } from '../features/auth/TotpLoginChallengeScreen';
 import { VaultUnlockScreen } from '../features/auth/VaultUnlockScreen';
@@ -102,7 +103,7 @@ export struct AppShell {
           this.dispatch(AppAction.ContinueWithPassword);
         },
         onDevicePasskey: () => {
-          this.dispatch(AppAction.DevicePasskeySucceeded);
+          this.dispatch(AppAction.DevicePasskeyRequested);
         },
         onSsoSignIn: () => {
           this.dispatch(AppAction.SsoRequested);
@@ -113,6 +114,15 @@ export struct AppShell {
       });
     } else if (this.destination === AppDestination.SsoWebAuth) {
       SsoWebAuthScreen({
+        onBackToSignIn: () => {
+          this.dispatch(AppAction.OpenSignIn);
+        }
+      });
+    } else if (this.destination === AppDestination.DevicePasskeyLogin) {
+      DevicePasskeyLoginScreen({
+        onPasskeyAccepted: () => {
+          this.dispatch(AppAction.DevicePasskeySucceeded);
+        },
         onBackToSignIn: () => {
           this.dispatch(AppAction.OpenSignIn);
         }
@@ -224,6 +234,8 @@ export struct AppShell {
     switch (target) {
       case AppDestination.SignIn:
         return AppAction.OpenSignIn;
+      case AppDestination.DevicePasskeyLogin:
+        return AppAction.DevicePasskeyRequested;
       case AppDestination.ServerConfig:
         return AppAction.SelfHostedRequested;
       case AppDestination.SsoWebAuth:

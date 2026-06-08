@@ -9,8 +9,8 @@
 - `core/capability`：系统能力抽象，包括自动填充、凭据获取、Passkey、生物识别和推送同步。
 - `core/sdk`：Bitwarden internal SDK 接入边界，先定义 client 生命周期和 repository bridge。
 - `features`：Auth、Vault、Autofill、Passkey、Settings 的一期功能契约、首批状态模型、Auth / Vault mock repository、系统集成 readiness repository 和设置策略 repository。
-- 首批 UI 状态流：登录、企业 SSO、自托管服务器配置、解锁、TOTP 登录挑战、保险库首页、两步验证码、系统集成和设置概览。
-- `ohosTest`：首批 Hypium 测试入口，当前覆盖 App 级 reducer、Auth / Vault 状态机、Auth / Vault mock repository、SSO WebAuth repository、ServerConfig repository、系统集成 readiness repository 和设置策略 repository。
+- 首批 UI 状态流：登录、设备 Passkey、企业 SSO、自托管服务器配置、解锁、TOTP 登录挑战、保险库首页、两步验证码、系统集成和设置概览。
+- `ohosTest`：首批 Hypium 测试入口，当前覆盖 App 级 reducer、Auth / Vault 状态机、Auth / Vault mock repository、设备 Passkey login repository、SSO WebAuth repository、ServerConfig repository、系统集成 readiness repository 和设置策略 repository。
 
 ## 签名策略
 
@@ -24,6 +24,7 @@
 - 已引入 `AppStateReducer`，将 AppShell 的页面跳转改为 `state-action` 驱动，并用 ohosTest 编译验证 reducer 测试。
 - 已引入 `AuthStateMachine` 和 `VaultStateMachine`，登录页开始通过 Auth 状态机做邮箱校验与登录事件分发，保险库首页开始通过 Vault 状态机派发 TOTP 验证码和系统集成入口事件。
 - 已引入 `PreviewAuthRepository`，登录页展示首发登录能力边界，解锁页通过 mock repository 表达“主密码后需要 TOTP 二步验证码”，不伪装真实解密或直接完成登录。
+- 已引入 `PreviewDevicePasskeyLoginRepository` 和 `DevicePasskeyLoginScreen`，设备 Passkey 入口进入独立能力页，表达一期只接设备内置 Passkey 登录，不接 NFC、YubiKey 或漫游认证器。
 - 已引入 `PreviewSsoWebAuthRepository` 和 `SsoWebAuthScreen`，企业 SSO 入口进入独立 WebAuth 页面，支持组织标识校验、preview launch URL 和 `WaitingForBrowser` 状态，为后续真实浏览器授权与 SDK 回调预留边界。
 - 已引入 `PreviewServerConfigRepository` 和 `ServerConfigScreen`，自托管入口进入独立配置页，支持 HTTPS base URL 的 preview 校验和 endpoint 派生，为后续 SDK ServerCommunicationConfigRepository 持久化预留边界。
 - 已引入 `TotpLoginChallengeScreen`，主密码 preview 成功后先进入 TOTP 二步验证码挑战页，再由 mock repository 进入保险库，避免把主密码解锁误写成完整登录。

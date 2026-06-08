@@ -1,5 +1,6 @@
 export enum AppDestination {
   SignIn = 'signIn',
+  DevicePasskeyLogin = 'devicePasskeyLogin',
   Unlock = 'unlock',
   TotpChallenge = 'totpChallenge',
   ServerConfig = 'serverConfig',
@@ -14,6 +15,8 @@ export function destinationTitle(destination: AppDestination): string {
   switch (destination) {
     case AppDestination.SignIn:
       return '登录';
+    case AppDestination.DevicePasskeyLogin:
+      return '设备 Passkey';
     case AppDestination.Unlock:
       return '解锁保险库';
     case AppDestination.TotpChallenge:
