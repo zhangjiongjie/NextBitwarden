@@ -1181,6 +1181,53 @@ export enum AppDestination {
 
 结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
 
+## 任务 22：条目详情复制和剪贴板清理边界
+
+**文件：**
+- 修改：`apps/harmony-app/entry/src/main/ets/features/vault/VaultItemDetailScreen.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/vault/data/VaultItemActionRepository.ets`
+- 创建：`apps/harmony-app/entry/src/ohosTest/ets/test/VaultItemActionRepository.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/List.test.ets`
+- 修改：`apps/harmony-app/README.md`
+
+- [x] **步骤 1：先写复制动作红灯测试**
+
+测试覆盖：
+
+- 用户名复制可以在 preview 阶段准备，不需要定时清理策略。
+- 密码复制必须返回 `RequiresDecryptedSecret`，不能把隐藏占位当成真实密码复制。
+- 密码复制必须保留 `TimedClear` 策略和 30 秒清理窗口。
+- 未找到条目时复制动作必须返回 `Unavailable` 和中文提示。
+
+- [x] **步骤 2：验证红灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：构建失败，错误为无法解析 `features/vault/data/VaultItemActionRepository`，证明测试正在约束尚未实现的条目复制动作边界。
+
+- [x] **步骤 3：实现最小复制 action repository**
+
+本轮新增：
+
+- `ClipboardClearPolicy`
+- `VaultItemCopyTarget`
+- `VaultItemActionStatus`
+- `VaultItemActionResult`
+- `VaultItemActionRepository`
+- `PreviewVaultItemActionRepository`
+
+当前只做复制动作准备和安全策略表达，不调用真实 Harmony 剪贴板 API，不写入敏感字段，不清理系统剪贴板。
+
+- [x] **步骤 4：接入条目详情页复制入口**
+
+`VaultItemDetailScreen` 新增复制用户名、复制密码边界和复制 URI preview 入口。密码复制入口只提示真实复制必须等待 SDK 解密后写入剪贴板，并按 30 秒策略清理；当前不会复制 `********` 占位。
+
+- [x] **步骤 5：验证绿灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
+
 ## 自检
 
 - 规格覆盖度：计划覆盖 `Password Manager` 一期主应用、TOTP、设备 Passkey 登录、自动填充、凭据获取、SDK bridge、生物识别、推送同步、自托管 / SSO / trusted device / key connector 边界，以及 Premium Web 开放、mTLS 预留和 Authenticator 扩展边界。

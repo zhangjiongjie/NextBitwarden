@@ -5,8 +5,14 @@ import {
   VaultItemDetailStatus,
   vaultItemTypeLabel
 } from './data/VaultRepository';
+import {
+  PreviewVaultItemActionRepository,
+  VaultItemActionResult,
+  VaultItemCopyTarget
+} from './data/VaultItemActionRepository';
 
 const VAULT_REPOSITORY: PreviewVaultRepository = new PreviewVaultRepository();
+const VAULT_ITEM_ACTION_REPOSITORY: PreviewVaultItemActionRepository = new PreviewVaultItemActionRepository();
 
 @Component
 export struct VaultItemDetailScreen {
@@ -90,6 +96,42 @@ export struct VaultItemDetailScreen {
             'preview 模式不保存真实密码。' :
             '真实密码必须由 SDK 解密后展示，当前仅保留隐藏占位。';
         });
+
+      Row({ space: 8 }) {
+        Button('复制用户名 preview')
+          .type(ButtonType.Capsule)
+          .layoutWeight(1)
+          .height(42)
+          .fontSize(13)
+          .fontColor(AppTheme.primaryColor)
+          .backgroundColor(AppTheme.primarySoftColor)
+          .onClick(() => {
+            this.prepareCopy(VaultItemCopyTarget.Username);
+          });
+
+        Button('复制密码边界')
+          .type(ButtonType.Capsule)
+          .layoutWeight(1)
+          .height(42)
+          .fontSize(13)
+          .fontColor(AppTheme.dangerColor)
+          .backgroundColor(AppTheme.warningSoftColor)
+          .onClick(() => {
+            this.prepareCopy(VaultItemCopyTarget.Password);
+          });
+      }
+      .width('100%');
+
+      Button('复制 URI preview')
+        .type(ButtonType.Capsule)
+        .width('100%')
+        .height(42)
+        .fontSize(13)
+        .fontColor(AppTheme.primaryColor)
+        .backgroundColor(AppTheme.primarySoftColor)
+        .onClick(() => {
+          this.prepareCopy(VaultItemCopyTarget.Uri);
+        });
     }
     .width('100%')
     .padding(16)
@@ -120,6 +162,16 @@ export struct VaultItemDetailScreen {
 
   private get detail(): VaultItemDetail {
     return VAULT_REPOSITORY.getItemDetail(this.itemId);
+  }
+
+  private prepareCopy(target: VaultItemCopyTarget): void {
+    let result: VaultItemActionResult = VAULT_ITEM_ACTION_REPOSITORY.prepareCopy(this.detail, target);
+    if (result.clearAfterSeconds > 0) {
+      this.statusMessage = result.message + ' ' + result.clearAfterSeconds.toString() + ' 秒后清理剪贴板。';
+      return;
+    }
+
+    this.statusMessage = result.message;
   }
 
   private emitBackToVault(): void {
