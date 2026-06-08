@@ -43,9 +43,10 @@ export class AppStateReducer {
       case AppAction.UnlockSucceeded:
       case AppAction.OpenVault:
         return new AppState(RootState.Unlocked, AppDestination.Vault);
-      case AppAction.SsoRequested:
       case AppAction.OpenSettings:
         return new AppState(state.rootState, AppDestination.Settings);
+      case AppAction.SsoRequested:
+        return new AppState(RootState.SignedOut, AppDestination.SsoWebAuth);
       case AppAction.SelfHostedRequested:
         return new AppState(RootState.SignedOut, AppDestination.ServerConfig);
       case AppAction.OpenVerificationCodes:

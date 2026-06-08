@@ -1,6 +1,7 @@
 import { AppDestination, destinationTitle } from '../core/navigation/AppDestination';
 import { rootStateDescription, rootStateTitle } from '../core/navigation/RootState';
 import { AuthLandingScreen } from '../features/auth/AuthLandingScreen';
+import { SsoWebAuthScreen } from '../features/auth/SsoWebAuthScreen';
 import { TotpLoginChallengeScreen } from '../features/auth/TotpLoginChallengeScreen';
 import { VaultUnlockScreen } from '../features/auth/VaultUnlockScreen';
 import { SystemIntegrationScreen } from '../features/platform/SystemIntegrationScreen';
@@ -108,6 +109,12 @@ export struct AppShell {
         },
         onSelfHostedConfig: () => {
           this.dispatch(AppAction.SelfHostedRequested);
+        }
+      });
+    } else if (this.destination === AppDestination.SsoWebAuth) {
+      SsoWebAuthScreen({
+        onBackToSignIn: () => {
+          this.dispatch(AppAction.OpenSignIn);
         }
       });
     } else if (this.destination === AppDestination.ServerConfig) {
@@ -219,6 +226,8 @@ export struct AppShell {
         return AppAction.OpenSignIn;
       case AppDestination.ServerConfig:
         return AppAction.SelfHostedRequested;
+      case AppDestination.SsoWebAuth:
+        return AppAction.SsoRequested;
       case AppDestination.Vault:
         return AppAction.OpenVault;
       case AppDestination.SystemIntegrations:

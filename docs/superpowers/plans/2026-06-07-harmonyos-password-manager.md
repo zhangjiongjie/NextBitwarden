@@ -875,6 +875,55 @@ export enum AppDestination {
 
 结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
 
+## 任务 16：企业 SSO WebAuth 页面和数据边界
+
+**文件：**
+- 修改：`apps/harmony-app/entry/src/main/ets/core/navigation/AppDestination.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/app/state/AppStateReducer.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/app/AppShell.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/auth/data/SsoWebAuthRepository.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/auth/SsoWebAuthScreen.ets`
+- 创建：`apps/harmony-app/entry/src/ohosTest/ets/test/SsoWebAuthRepository.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/AppStateReducer.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/List.test.ets`
+- 修改：`apps/harmony-app/README.md`
+
+- [x] **步骤 1：先写 SSO WebAuth 红灯测试**
+
+测试覆盖：
+
+- `SsoRequested` 必须进入独立 `SsoWebAuth` 目的地，不再复用设置概览页。
+- 组织标识为空时返回 validation 状态和中文提示。
+- 组织标识有效时生成等待浏览器的 `SsoWebAuthSession`。
+- preview launch URL 必须包含组织标识，为后续真实浏览器授权入口预留形态。
+
+- [x] **步骤 2：验证红灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：构建失败，错误为缺少 `AppDestination.SsoWebAuth` 和 `features/auth/data/SsoWebAuthRepository`，证明测试正在约束尚未实现的企业 SSO WebAuth 边界。
+
+- [x] **步骤 3：实现最小 SSO WebAuth repository**
+
+本轮新增：
+
+- `SsoWebAuthStartStatus`
+- `SsoWebAuthStartResult`
+- `SsoWebAuthRepository`
+- `PreviewSsoWebAuthRepository`
+
+当前只做组织标识校验、preview launch URL 生成和 `WaitingForBrowser` 状态，不启动真实浏览器、不处理 Cookie、token、回调 scheme 或 SDK auth session。
+
+- [x] **步骤 4：接入独立 SSO 页面**
+
+`AuthLandingScreen` 的“企业 SSO”入口现在通过 `SsoRequested` 进入 `SsoWebAuthScreen`；页面展示组织标识输入、浏览器授权准备状态和返回登录入口。
+
+- [x] **步骤 5：验证绿灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
+
 ## 自检
 
 - 规格覆盖度：计划覆盖 `Password Manager` 一期主应用、TOTP、设备 Passkey 登录、自动填充、凭据获取、SDK bridge、生物识别、推送同步、自托管 / SSO / trusted device / key connector 边界，以及 Premium Web 开放、mTLS 预留和 Authenticator 扩展边界。

@@ -64,6 +64,15 @@ export default function appStateReducerTest(): void {
       expect(next.destination).assertEqual(AppDestination.ServerConfig);
     });
 
+    it('routes sso requests to a dedicated web auth screen', 0, () => {
+      let state: AppState = createInitialAppState();
+
+      let next: AppState = AppStateReducer.reduce(state, AppAction.SsoRequested);
+
+      expect(next.rootState).assertEqual(RootState.SignedOut);
+      expect(next.destination).assertEqual(AppDestination.SsoWebAuth);
+    });
+
     it('signs out when returning to the sign-in destination', 0, () => {
       let state: AppState = new AppState(RootState.Unlocked, AppDestination.Settings);
 

@@ -3,6 +3,7 @@ export enum AppDestination {
   Unlock = 'unlock',
   TotpChallenge = 'totpChallenge',
   ServerConfig = 'serverConfig',
+  SsoWebAuth = 'ssoWebAuth',
   Vault = 'vault',
   VerificationCodes = 'verificationCodes',
   SystemIntegrations = 'systemIntegrations',
@@ -19,6 +20,8 @@ export function destinationTitle(destination: AppDestination): string {
       return 'TOTP 二步验证';
     case AppDestination.ServerConfig:
       return '自托管服务器';
+    case AppDestination.SsoWebAuth:
+      return '企业 SSO';
     case AppDestination.Vault:
       return '保险库';
     case AppDestination.VerificationCodes:
