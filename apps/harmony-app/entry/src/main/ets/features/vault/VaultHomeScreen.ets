@@ -18,6 +18,7 @@ const VAULT_REPOSITORY: PreviewVaultRepository = new PreviewVaultRepository();
 
 @Component
 export struct VaultHomeScreen {
+  onAddTotp?: () => void;
   onVerificationCodes?: () => void;
   onSystemIntegrations?: () => void;
 
@@ -97,16 +98,30 @@ export struct VaultHomeScreen {
         .lineHeight(20)
         .width('100%');
 
-      Button('查看验证码')
-        .type(ButtonType.Capsule)
-        .width('100%')
-        .height(44)
-        .fontSize(14)
-        .fontColor(AppTheme.primaryColor)
-        .backgroundColor(AppTheme.primarySoftColor)
-        .onClick(() => {
-          this.handleVerificationCodes();
-        });
+      Row({ space: 10 }) {
+        Button('添加 TOTP')
+          .type(ButtonType.Capsule)
+          .layoutWeight(1)
+          .height(44)
+          .fontSize(14)
+          .fontColor(AppTheme.primaryColor)
+          .backgroundColor(AppTheme.primarySoftColor)
+          .onClick(() => {
+            this.handleAddTotp();
+          });
+
+        Button('查看验证码')
+          .type(ButtonType.Capsule)
+          .layoutWeight(1)
+          .height(44)
+          .fontSize(14)
+          .fontColor(AppTheme.primaryColor)
+          .backgroundColor(AppTheme.primarySoftColor)
+          .onClick(() => {
+            this.handleVerificationCodes();
+          });
+      }
+      .width('100%');
     }
     .width('100%')
     .padding(16)
@@ -190,6 +205,14 @@ export struct VaultHomeScreen {
     }
   }
 
+  private handleAddTotp(): void {
+    let transition: VaultTransition = VaultStateMachine.reduce(this.vaultState, VaultAction.OpenAddTotp);
+    this.applyTransition(transition);
+    if (transition.event.kind === VaultEventKind.NavigateToAddTotp) {
+      this.emitAddTotp();
+    }
+  }
+
   private handleSystemIntegrations(): void {
     let transition: VaultTransition = VaultStateMachine.reduce(this.vaultState, VaultAction.OpenSystemIntegrations);
     this.applyTransition(transition);
@@ -205,6 +228,12 @@ export struct VaultHomeScreen {
   private emitVerificationCodes(): void {
     if (this.onVerificationCodes) {
       this.onVerificationCodes();
+    }
+  }
+
+  private emitAddTotp(): void {
+    if (this.onAddTotp) {
+      this.onAddTotp();
     }
   }
 

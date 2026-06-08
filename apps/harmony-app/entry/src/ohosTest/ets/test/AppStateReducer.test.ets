@@ -64,6 +64,24 @@ export default function appStateReducerTest(): void {
       expect(next.destination).assertEqual(AppDestination.Vault);
     });
 
+    it('routes add totp requests to a dedicated setup screen', 0, () => {
+      let state: AppState = new AppState(RootState.Unlocked, AppDestination.Vault);
+
+      let next: AppState = AppStateReducer.reduce(state, AppAction.OpenAddTotp);
+
+      expect(next.rootState).assertEqual(RootState.Unlocked);
+      expect(next.destination).assertEqual(AppDestination.AddTotp);
+    });
+
+    it('routes saved totp setup back to verification codes', 0, () => {
+      let state: AppState = new AppState(RootState.Unlocked, AppDestination.AddTotp);
+
+      let next: AppState = AppStateReducer.reduce(state, AppAction.TotpSetupSaved);
+
+      expect(next.rootState).assertEqual(RootState.Unlocked);
+      expect(next.destination).assertEqual(AppDestination.VerificationCodes);
+    });
+
     it('routes device passkey requests to a dedicated platform login screen', 0, () => {
       let state: AppState = createInitialAppState();
 

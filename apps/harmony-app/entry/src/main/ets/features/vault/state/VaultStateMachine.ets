@@ -1,12 +1,14 @@
 export enum VaultViewSurface {
   ItemList = 'itemList',
   ItemDetail = 'itemDetail',
+  AddTotp = 'addTotp',
   VerificationCodes = 'verificationCodes',
   SystemIntegrations = 'systemIntegrations'
 }
 
 export enum VaultAction {
   OpenVerificationCodes = 'openVerificationCodes',
+  OpenAddTotp = 'openAddTotp',
   BackToItemList = 'backToItemList',
   OpenSystemIntegrations = 'openSystemIntegrations',
   OpenItemDetail = 'openItemDetail',
@@ -16,6 +18,7 @@ export enum VaultAction {
 export enum VaultEventKind {
   None = 'none',
   NavigateToVerificationCodes = 'navigateToVerificationCodes',
+  NavigateToAddTotp = 'navigateToAddTotp',
   NavigateToItemList = 'navigateToItemList',
   NavigateToSystemIntegrations = 'navigateToSystemIntegrations',
   NavigateToItemDetail = 'navigateToItemDetail',
@@ -63,6 +66,11 @@ export class VaultStateMachine {
         return new VaultTransition(
           new VaultViewState(VaultViewSurface.VerificationCodes, false),
           new VaultEvent(VaultEventKind.NavigateToVerificationCodes, '打开主应用两步验证码页面。')
+        );
+      case VaultAction.OpenAddTotp:
+        return new VaultTransition(
+          new VaultViewState(VaultViewSurface.AddTotp, false),
+          new VaultEvent(VaultEventKind.NavigateToAddTotp, '打开主应用 TOTP 添加页面。')
         );
       case VaultAction.BackToItemList:
         return new VaultTransition(

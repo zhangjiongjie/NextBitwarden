@@ -1077,6 +1077,60 @@ export enum AppDestination {
 
 结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
 
+## 任务 20：添加 TOTP 页面和数据边界
+
+**文件：**
+- 修改：`apps/harmony-app/entry/src/main/ets/core/navigation/AppDestination.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/app/state/AppStateReducer.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/app/AppShell.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/features/vault/VaultHomeScreen.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/features/vault/state/VaultStateMachine.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/vault/data/TotpSetupRepository.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/vault/TotpSetupScreen.ets`
+- 创建：`apps/harmony-app/entry/src/ohosTest/ets/test/TotpSetupRepository.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/AppStateReducer.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/VaultStateMachine.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/List.test.ets`
+- 修改：`apps/harmony-app/README.md`
+
+- [x] **步骤 1：先写添加 TOTP 红灯测试**
+
+测试覆盖：
+
+- `OpenAddTotp` 必须从保险库首页进入独立 `AddTotp` 目的地。
+- `TotpSetupSaved` 必须回到两步验证码页面，形成“添加后查看验证码”的主应用闭环。
+- Vault 状态机必须产生 `NavigateToAddTotp` 事件。
+- TOTP setup repository 必须能解析 `otpauth://totp` URI，缺少 `secret` 时返回 validation error。
+- TOTP setup repository 必须支持发行方、账号和 secret 的手动录入 preview。
+
+- [x] **步骤 2：验证红灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：构建失败，错误为缺少 `AppAction.OpenAddTotp`、`AppAction.TotpSetupSaved`、`AppDestination.AddTotp`、`VaultAction.OpenAddTotp`、`VaultViewSurface.AddTotp`、`VaultEventKind.NavigateToAddTotp` 和 `features/vault/data/TotpSetupRepository`，证明测试正在约束尚未实现的主应用添加 TOTP 边界。
+
+- [x] **步骤 3：实现最小 TOTP setup repository**
+
+本轮新增：
+
+- `TotpSetupMode`
+- `TotpSetupStatus`
+- `TotpSetupDraft`
+- `TotpSetupRepository`
+- `PreviewTotpSetupRepository`
+
+当前只做 `otpauth://totp` URI preview 解析、手动录入 preview 和 secret 掩码展示，不写入真实保险库，不计算真实 TOTP，不调用 Bitwarden SDK。
+
+- [x] **步骤 4：接入独立添加 TOTP 页面**
+
+保险库首页的验证码卡片现在同时提供“添加 TOTP”和“查看验证码”入口；`TotpSetupScreen` 支持 URI 解析和手动录入 preview，保存 preview 后进入两步验证码页面。
+
+- [x] **步骤 5：验证绿灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
+
 ## 自检
 
 - 规格覆盖度：计划覆盖 `Password Manager` 一期主应用、TOTP、设备 Passkey 登录、自动填充、凭据获取、SDK bridge、生物识别、推送同步、自托管 / SSO / trusted device / key connector 边界，以及 Premium Web 开放、mTLS 预留和 Authenticator 扩展边界。

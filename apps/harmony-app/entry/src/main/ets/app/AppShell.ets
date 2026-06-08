@@ -10,6 +10,7 @@ import { VaultUnlockScreen } from '../features/auth/VaultUnlockScreen';
 import { SystemIntegrationScreen } from '../features/platform/SystemIntegrationScreen';
 import { ServerConfigScreen } from '../features/settings/ServerConfigScreen';
 import { SettingsOverviewScreen } from '../features/settings/SettingsOverviewScreen';
+import { TotpSetupScreen } from '../features/vault/TotpSetupScreen';
 import { VaultHomeScreen } from '../features/vault/VaultHomeScreen';
 import { VerificationCodesScreen } from '../features/vault/VerificationCodesScreen';
 import { AppAction, AppState, AppStateReducer, createInitialAppState } from './state/AppStateReducer';
@@ -185,11 +186,23 @@ export struct AppShell {
       });
     } else if (this.destination === AppDestination.Vault) {
       VaultHomeScreen({
+        onAddTotp: () => {
+          this.dispatch(AppAction.OpenAddTotp);
+        },
         onVerificationCodes: () => {
           this.dispatch(AppAction.OpenVerificationCodes);
         },
         onSystemIntegrations: () => {
           this.dispatch(AppAction.OpenSystemIntegrations);
+        }
+      });
+    } else if (this.destination === AppDestination.AddTotp) {
+      TotpSetupScreen({
+        onSaved: () => {
+          this.dispatch(AppAction.TotpSetupSaved);
+        },
+        onBackToVault: () => {
+          this.dispatch(AppAction.OpenVault);
         }
       });
     } else if (this.destination === AppDestination.VerificationCodes) {
@@ -269,6 +282,8 @@ export struct AppShell {
         return AppAction.BiometricUnlockRequested;
       case AppDestination.Vault:
         return AppAction.OpenVault;
+      case AppDestination.AddTotp:
+        return AppAction.OpenAddTotp;
       case AppDestination.SystemIntegrations:
         return AppAction.OpenSystemIntegrations;
       case AppDestination.Settings:

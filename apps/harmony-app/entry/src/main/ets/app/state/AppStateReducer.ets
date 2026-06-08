@@ -17,6 +17,8 @@ export enum AppAction {
   BackToLogin = 'backToLogin',
   OpenSignIn = 'openSignIn',
   OpenVault = 'openVault',
+  OpenAddTotp = 'openAddTotp',
+  TotpSetupSaved = 'totpSetupSaved',
   OpenVerificationCodes = 'openVerificationCodes',
   OpenSystemIntegrations = 'openSystemIntegrations',
   OpenSettings = 'openSettings'
@@ -64,6 +66,10 @@ export class AppStateReducer {
         return new AppState(RootState.SignedOut, AppDestination.ServerConfig);
       case AppAction.OpenVerificationCodes:
         return new AppState(state.rootState, AppDestination.VerificationCodes);
+      case AppAction.OpenAddTotp:
+        return new AppState(RootState.Unlocked, AppDestination.AddTotp);
+      case AppAction.TotpSetupSaved:
+        return new AppState(RootState.Unlocked, AppDestination.VerificationCodes);
       case AppAction.OpenSystemIntegrations:
         return new AppState(RootState.SystemEntry, AppDestination.SystemIntegrations);
       case AppAction.BackToLogin:
