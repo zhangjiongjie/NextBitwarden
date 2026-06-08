@@ -1,4 +1,12 @@
 import { AppTheme } from '../../app/AppTheme';
+import {
+  AuthFlowStage,
+  AuthOperationStatus,
+  AuthSessionPreview,
+  PreviewAuthRepository
+} from './data/AuthRepository';
+
+const AUTH_REPOSITORY: PreviewAuthRepository = new PreviewAuthRepository();
 
 @Component
 export struct VaultUnlockScreen {
@@ -7,6 +15,8 @@ export struct VaultUnlockScreen {
   onBackToLogin?: () => void;
 
   @State private masterPassword: string = '';
+  @State private validationMessage: string = '';
+  @State private nextStepMessage: string = '解锁后将进入 TOTP 二步验证码校验边界。';
 
   build() {
     Column({ space: 18 }) {
@@ -45,7 +55,21 @@ export struct VaultUnlockScreen {
           .padding({ left: 14, right: 14 })
           .onChange((value: string) => {
             this.masterPassword = value;
+            this.validationMessage = '';
           });
+
+        if (this.validationMessage.length > 0) {
+          Text(this.validationMessage)
+            .fontSize(12)
+            .fontColor(AppTheme.dangerColor)
+            .width('100%');
+        }
+
+        Text(this.nextStepMessage)
+          .fontSize(12)
+          .fontColor(AppTheme.bodyColor)
+          .lineHeight(18)
+          .width('100%');
 
         Button('解锁')
           .type(ButtonType.Capsule)
@@ -55,7 +79,7 @@ export struct VaultUnlockScreen {
           .fontWeight(FontWeight.Medium)
           .backgroundColor(AppTheme.primaryColor)
           .onClick(() => {
-            this.emitUnlocked();
+            this.handleUnlock();
           });
 
         Button('面容 / 指纹解锁')
@@ -87,6 +111,16 @@ export struct VaultUnlockScreen {
         });
     }
     .width('100%');
+  }
+
+  private handleUnlock(): void {
+    let session: AuthSessionPreview = AUTH_REPOSITORY.unlockWithMasterPassword('preview@example.com', this.masterPassword);
+    this.validationMessage = session.status === AuthOperationStatus.ValidationError ? session.validationMessage : '';
+    if (session.stage === AuthFlowStage.WaitingForTotp) {
+      this.nextStepMessage = session.validationMessage;
+    } else if (session.stage === AuthFlowStage.VaultUnlocked) {
+      this.emitUnlocked();
+    }
   }
 
   private emitUnlocked(): void {

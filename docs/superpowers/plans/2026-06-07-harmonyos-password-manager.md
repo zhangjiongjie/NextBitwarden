@@ -626,6 +626,58 @@ export enum AppDestination {
 
 结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
 
+## 任务 11：Auth domain 与 mock repository 数据边界
+
+**文件：**
+- 创建：`apps/harmony-app/entry/src/main/ets/features/auth/data/AuthRepository.ets`
+- 创建：`apps/harmony-app/entry/src/ohosTest/ets/test/AuthRepository.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/List.test.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/features/auth/AuthLandingScreen.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/features/auth/VaultUnlockScreen.ets`
+
+- [x] **步骤 1：先写 Auth repository 测试**
+
+测试覆盖：
+
+- 首发登录方式必须按稳定顺序暴露：主密码、TOTP 二步验证码、设备 Passkey、SSO、trusted device。
+- 账号密码登录必须先校验邮箱，缺少邮箱时返回 validation error。
+- 主密码解锁的 preview 结果必须进入 `WaitingForTotp`，并返回“需要 TOTP 两步验证码”。
+- 设备 Passkey 登录必须走独立 capability 启动阶段。
+
+- [x] **步骤 2：验证红灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：构建失败，错误为找不到 `features/auth/data/AuthRepository`，证明测试正在约束尚未实现的 Auth 数据边界。
+
+- [x] **步骤 3：实现最小 mock repository**
+
+`AuthRepository.ets` 定义：
+
+- `AuthMethod`
+- `AuthFlowStage`
+- `AuthOperationStatus`
+- `AuthMethodDescriptor`
+- `AuthSessionPreview`
+- `AuthRepository`
+- `PreviewAuthRepository`
+
+当前 repository 只表达登录流程边界，不做真实账号登录、主密码校验、保险库解密、Passkey 调用或 TOTP 校验。
+
+- [x] **步骤 4：接入首批 Auth 页面**
+
+`AuthLandingScreen` 现在从 `PreviewAuthRepository` 展示首发登录能力边界；`VaultUnlockScreen` 使用 repository 处理主密码空值校验，并在主密码后停留到 TOTP 二步验证码边界，不直接伪装登录完成。
+
+- [x] **步骤 5：验证绿灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode project assembleApp --no-daemon --stacktrace`
+
+结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
+
 ## 自检
 
 - 规格覆盖度：计划覆盖 `Password Manager` 一期主应用、TOTP、设备 Passkey 登录、自动填充、凭据获取、SDK bridge、生物识别、推送同步、自托管 / SSO / trusted device / key connector 边界。

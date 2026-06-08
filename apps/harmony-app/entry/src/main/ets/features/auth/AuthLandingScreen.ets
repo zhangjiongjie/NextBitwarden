@@ -1,4 +1,5 @@
 import { AppTheme } from '../../app/AppTheme';
+import { AuthMethodDescriptor, PreviewAuthRepository } from './data/AuthRepository';
 import {
   AuthAction,
   AuthEventKind,
@@ -8,6 +9,8 @@ import {
   createInitialAuthState
 } from './state/AuthStateMachine';
 
+const AUTH_REPOSITORY: PreviewAuthRepository = new PreviewAuthRepository();
+
 @Component
 export struct AuthLandingScreen {
   onPasswordSignIn?: () => void;
@@ -16,6 +19,7 @@ export struct AuthLandingScreen {
   onSelfHostedConfig?: () => void;
 
   @State private authState: AuthViewState = createInitialAuthState();
+  private authMethods: AuthMethodDescriptor[] = AUTH_REPOSITORY.getSupportedMethods();
 
   build() {
     Column({ space: 18 }) {
@@ -114,11 +118,55 @@ export struct AuthLandingScreen {
           });
       }
       .width('100%');
+
+      this.buildMethodSummary();
+    }
+    .width('100%');
+  }
+
+  @Builder
+  private buildMethodSummary(): void {
+    Column({ space: 8 }) {
+      Text('一期登录能力边界')
+        .fontSize(16)
+        .fontWeight(FontWeight.Medium)
+        .fontColor(AppTheme.titleColor)
+        .width('100%');
+
+      ForEach(this.authMethods, (method: AuthMethodDescriptor) => {
+        Row({ space: 8 }) {
+          Text(method.firstReleaseRequired ? '必做' : '预留')
+            .fontSize(11)
+            .fontColor(AppTheme.primaryColor)
+            .padding({ left: 8, right: 8, top: 4, bottom: 4 })
+            .backgroundColor(AppTheme.primarySoftColor)
+            .borderRadius(10);
+
+          Column({ space: 2 }) {
+            Text(method.label)
+              .fontSize(14)
+              .fontWeight(FontWeight.Medium)
+              .fontColor(AppTheme.titleColor);
+
+            Text(method.message)
+              .fontSize(12)
+              .fontColor(AppTheme.bodyColor)
+              .lineHeight(18);
+          }
+          .layoutWeight(1);
+        }
+        .width('100%')
+        .padding(12)
+        .backgroundColor(AppTheme.surfaceColor)
+        .borderRadius(16)
+        .border({ width: 1, color: AppTheme.dividerColor });
+      }, (method: AuthMethodDescriptor) => method.method);
     }
     .width('100%');
   }
 
   private handlePasswordSignIn(): void {
+    AUTH_REPOSITORY.startPasswordLogin(this.authState.email);
     let transition: AuthTransition = AuthStateMachine.reduce(this.authState, AuthAction.ContinueWithPassword);
     this.applyTransition(transition);
     if (transition.event.kind === AuthEventKind.NavigateToUnlock) {
@@ -127,6 +175,7 @@ export struct AuthLandingScreen {
   }
 
   private handleDevicePasskey(): void {
+    AUTH_REPOSITORY.startDevicePasskeyLogin();
     let transition: AuthTransition = AuthStateMachine.reduce(this.authState, AuthAction.DevicePasskeyRequested);
     this.applyTransition(transition);
     if (transition.event.kind === AuthEventKind.StartDevicePasskeyLogin) {
@@ -135,6 +184,7 @@ export struct AuthLandingScreen {
   }
 
   private handleSsoSignIn(): void {
+    AUTH_REPOSITORY.startSsoLogin();
     let transition: AuthTransition = AuthStateMachine.reduce(this.authState, AuthAction.SsoRequested);
     this.applyTransition(transition);
     if (transition.event.kind === AuthEventKind.StartSsoLogin) {
@@ -143,6 +193,7 @@ export struct AuthLandingScreen {
   }
 
   private handleSelfHostedConfig(): void {
+    AUTH_REPOSITORY.openSelfHostedConfig();
     let transition: AuthTransition = AuthStateMachine.reduce(this.authState, AuthAction.SelfHostedRequested);
     this.applyTransition(transition);
     if (transition.event.kind === AuthEventKind.OpenServerConfig) {
