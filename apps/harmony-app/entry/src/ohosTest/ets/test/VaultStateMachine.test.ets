@@ -29,6 +29,15 @@ export default function vaultStateMachineTest(): void {
       expect(next.event.kind).assertEqual(VaultEventKind.NavigateToAddTotp);
     });
 
+    it('opens add login item from the vault home surface', 0, () => {
+      let state: VaultViewState = createInitialVaultState();
+
+      let next: VaultTransition = VaultStateMachine.reduce(state, VaultAction.OpenAddLogin);
+
+      expect(next.state.surface).assertEqual(VaultViewSurface.AddLogin);
+      expect(next.event.kind).assertEqual(VaultEventKind.NavigateToAddLogin);
+    });
+
     it('opens item detail from the vault home surface', 0, () => {
       let state: VaultViewState = createInitialVaultState();
 

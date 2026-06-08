@@ -11,6 +11,7 @@ import { SystemIntegrationScreen } from '../features/platform/SystemIntegrationS
 import { ServerConfigScreen } from '../features/settings/ServerConfigScreen';
 import { SettingsOverviewScreen } from '../features/settings/SettingsOverviewScreen';
 import { TotpSetupScreen } from '../features/vault/TotpSetupScreen';
+import { VaultAddLoginScreen } from '../features/vault/VaultAddLoginScreen';
 import { VaultItemDetailScreen } from '../features/vault/VaultItemDetailScreen';
 import { VaultHomeScreen } from '../features/vault/VaultHomeScreen';
 import { VerificationCodesScreen } from '../features/vault/VerificationCodesScreen';
@@ -187,6 +188,9 @@ export struct AppShell {
       });
     } else if (this.destination === AppDestination.Vault) {
       VaultHomeScreen({
+        onAddLogin: () => {
+          this.dispatch(AppAction.OpenAddLogin);
+        },
         onItemDetail: (itemId: string) => {
           this.dispatch(AppAction.OpenItemDetail, itemId);
         },
@@ -203,6 +207,15 @@ export struct AppShell {
     } else if (this.destination === AppDestination.ItemDetail) {
       VaultItemDetailScreen({
         itemId: this.appState.selectedVaultItemId,
+        onBackToVault: () => {
+          this.dispatch(AppAction.OpenVault);
+        }
+      });
+    } else if (this.destination === AppDestination.AddLogin) {
+      VaultAddLoginScreen({
+        onSaved: (itemId: string) => {
+          this.dispatch(AppAction.VaultItemSaved, itemId);
+        },
         onBackToVault: () => {
           this.dispatch(AppAction.OpenVault);
         }
@@ -295,6 +308,8 @@ export struct AppShell {
         return AppAction.OpenVault;
       case AppDestination.ItemDetail:
         return AppAction.OpenItemDetail;
+      case AppDestination.AddLogin:
+        return AppAction.OpenAddLogin;
       case AppDestination.AddTotp:
         return AppAction.OpenAddTotp;
       case AppDestination.SystemIntegrations:

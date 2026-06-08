@@ -167,6 +167,23 @@ export class PreviewVaultRepository implements VaultRepository {
   }
 
   getItemDetail(itemId: string): VaultItemDetail {
+    if (itemId === 'preview-login-gitlab') {
+      return new VaultItemDetail(
+        VaultItemDetailStatus.Found,
+        itemId,
+        'GitLab',
+        'gitlab.com',
+        VaultItemType.Login,
+        'dev@example.com',
+        '********',
+        false,
+        'https://gitlab.com',
+        '新增登录 preview 详情仅用于路由闭环，真实保存需要 SDK 创建 cipher 后刷新保险库。',
+        true,
+        '新增登录 preview 已准备。'
+      );
+    }
+
     for (let index = 0; index < this.items.length; index++) {
       let item: VaultListItem = this.items[index];
       if (item.id === itemId) {

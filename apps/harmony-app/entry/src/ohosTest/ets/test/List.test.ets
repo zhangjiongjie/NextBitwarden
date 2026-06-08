@@ -10,6 +10,7 @@ import systemIntegrationRepositoryTest from './SystemIntegrationRepository.test'
 import totpSetupRepositoryTest from './TotpSetupRepository.test';
 import trustedDeviceApprovalRepositoryTest from './TrustedDeviceApprovalRepository.test';
 import vaultItemActionRepositoryTest from './VaultItemActionRepository.test';
+import vaultItemWriteRepositoryTest from './VaultItemWriteRepository.test';
 import vaultRepositoryTest from './VaultRepository.test';
 import vaultStateMachineTest from './VaultStateMachine.test';
 
@@ -26,6 +27,7 @@ export default function testsuite(): void {
   totpSetupRepositoryTest();
   trustedDeviceApprovalRepositoryTest();
   vaultItemActionRepositoryTest();
+  vaultItemWriteRepositoryTest();
   vaultRepositoryTest();
   vaultStateMachineTest();
 }

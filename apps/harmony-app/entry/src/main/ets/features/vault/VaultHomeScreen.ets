@@ -18,6 +18,7 @@ const VAULT_REPOSITORY: PreviewVaultRepository = new PreviewVaultRepository();
 
 @Component
 export struct VaultHomeScreen {
+  onAddLogin?: () => void;
   onAddTotp?: () => void;
   onItemDetail?: (itemId: string) => void;
   onVerificationCodes?: () => void;
@@ -134,12 +135,22 @@ export struct VaultHomeScreen {
   @Builder
   private buildVaultList(): void {
     Column({ space: 10 }) {
-      Row() {
+      Row({ space: 8 }) {
         Text('收藏和类型')
           .fontSize(18)
           .fontWeight(FontWeight.Medium)
           .fontColor(AppTheme.titleColor)
           .layoutWeight(1);
+
+        Button('新增登录')
+          .type(ButtonType.Capsule)
+          .height(34)
+          .fontSize(12)
+          .fontColor(AppTheme.primaryColor)
+          .backgroundColor(AppTheme.primarySoftColor)
+          .onClick(() => {
+            this.handleAddLogin();
+          });
 
         Button('系统集成')
           .type(ButtonType.Capsule)
@@ -217,6 +228,14 @@ export struct VaultHomeScreen {
     }
   }
 
+  private handleAddLogin(): void {
+    let transition: VaultTransition = VaultStateMachine.reduce(this.vaultState, VaultAction.OpenAddLogin);
+    this.applyTransition(transition);
+    if (transition.event.kind === VaultEventKind.NavigateToAddLogin) {
+      this.emitAddLogin();
+    }
+  }
+
   private handleItemDetail(itemId: string): void {
     let transition: VaultTransition = VaultStateMachine.reduce(this.vaultState, VaultAction.OpenItemDetail);
     this.applyTransition(transition);
@@ -246,6 +265,12 @@ export struct VaultHomeScreen {
   private emitAddTotp(): void {
     if (this.onAddTotp) {
       this.onAddTotp();
+    }
+  }
+
+  private emitAddLogin(): void {
+    if (this.onAddLogin) {
+      this.onAddLogin();
     }
   }
 

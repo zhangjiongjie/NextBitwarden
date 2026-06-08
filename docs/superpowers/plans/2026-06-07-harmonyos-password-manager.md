@@ -1228,6 +1228,67 @@ export enum AppDestination {
 
 结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
 
+## 任务 23：新增登录条目页面和写入边界
+
+**文件：**
+- 修改：`apps/harmony-app/entry/src/main/ets/core/navigation/AppDestination.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/app/state/AppStateReducer.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/app/AppShell.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/features/vault/VaultHomeScreen.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/features/vault/state/VaultStateMachine.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/features/vault/data/VaultRepository.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/vault/data/VaultItemWriteRepository.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/vault/VaultAddLoginScreen.ets`
+- 创建：`apps/harmony-app/entry/src/ohosTest/ets/test/VaultItemWriteRepository.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/AppStateReducer.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/VaultRepository.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/VaultStateMachine.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/List.test.ets`
+- 修改：`apps/harmony-app/README.md`
+
+- [x] **步骤 1：先写新增登录红灯测试**
+
+测试覆盖：
+
+- `OpenAddLogin` 必须从保险库首页进入独立 `AddLogin` 目的地。
+- `VaultItemSaved` 必须进入条目详情页，并携带新建条目的 `itemId`。
+- Vault 状态机必须产生 `NavigateToAddLogin` 事件。
+- 写入 repository 必须拒绝缺少名称的登录草稿。
+- 写入 repository 必须返回 preview 保存结果，并明确 `persistedToSdk=false`、`requiresSdkCipherCreate=true`。
+- 保存后的 preview 路由 ID 必须能在详情 repository 中返回安全详情，避免保存后立刻进入 `NotFound`。
+
+- [x] **步骤 2：验证红灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：构建失败，错误为缺少 `AppAction.OpenAddLogin`、`AppAction.VaultItemSaved`、`AppDestination.AddLogin`、`VaultAction.OpenAddLogin`、`VaultViewSurface.AddLogin`、`VaultEventKind.NavigateToAddLogin` 和 `features/vault/data/VaultItemWriteRepository`，证明测试正在约束尚未实现的新增登录写入边界。
+
+- [x] **步骤 3：实现最小新增登录 write repository**
+
+本轮新增：
+
+- `VaultItemSaveStatus`
+- `VaultLoginDraft`
+- `VaultItemSaveResult`
+- `VaultItemWriteRepository`
+- `PreviewVaultItemWriteRepository`
+
+当前只校验登录草稿并生成 preview 路由 ID，不持久化真实 cipher，不保存明文密码，不同步远端保险库。
+
+- [x] **步骤 4：接入新增登录页面**
+
+保险库首页新增“新增登录”入口；`VaultAddLoginScreen` 支持名称、用户名、URI 和 TOTP 标记的 preview 草稿，密码字段仍保持 `********` 占位。保存 preview 后通过 `VaultItemSaved` 进入 `preview-login-gitlab` 的详情页，用于验证新增流程闭环。
+
+- [x] **步骤 5：验证绿灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
+
+补充运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode project assembleApp --no-daemon --stacktrace`
+
+结果：`BUILD SUCCESSFUL`，新增页面通过主工程 ArkTS 编译，仍只有预期的签名配置警告。
+
 ## 自检
 
 - 规格覆盖度：计划覆盖 `Password Manager` 一期主应用、TOTP、设备 Passkey 登录、自动填充、凭据获取、SDK bridge、生物识别、推送同步、自托管 / SSO / trusted device / key connector 边界，以及 Premium Web 开放、mTLS 预留和 Authenticator 扩展边界。

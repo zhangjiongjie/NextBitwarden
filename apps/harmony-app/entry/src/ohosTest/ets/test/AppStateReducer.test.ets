@@ -82,6 +82,25 @@ export default function appStateReducerTest(): void {
       expect(next.destination).assertEqual(AppDestination.VerificationCodes);
     });
 
+    it('routes add login requests to a dedicated create item screen', 0, () => {
+      let state: AppState = new AppState(RootState.Unlocked, AppDestination.Vault);
+
+      let next: AppState = AppStateReducer.reduce(state, AppAction.OpenAddLogin);
+
+      expect(next.rootState).assertEqual(RootState.Unlocked);
+      expect(next.destination).assertEqual(AppDestination.AddLogin);
+    });
+
+    it('routes saved vault login drafts to item detail with the created item id', 0, () => {
+      let state: AppState = new AppState(RootState.Unlocked, AppDestination.AddLogin);
+
+      let next: AppState = AppStateReducer.reduce(state, AppAction.VaultItemSaved, 'preview-login-gitlab');
+
+      expect(next.rootState).assertEqual(RootState.Unlocked);
+      expect(next.destination).assertEqual(AppDestination.ItemDetail);
+      expect(next.selectedVaultItemId).assertEqual('preview-login-gitlab');
+    });
+
     it('routes vault item detail requests with a selected item id', 0, () => {
       let state: AppState = new AppState(RootState.Unlocked, AppDestination.Vault);
 

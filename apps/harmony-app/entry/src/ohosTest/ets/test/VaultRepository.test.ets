@@ -54,6 +54,18 @@ export default function vaultRepositoryTest(): void {
       expect(detail.canRevealPassword).assertFalse();
     });
 
+    it('returns a safe detail for the preview-created login route id', 0, () => {
+      let repository: PreviewVaultRepository = new PreviewVaultRepository();
+
+      let detail: VaultItemDetail = repository.getItemDetail('preview-login-gitlab');
+
+      expect(detail.status).assertEqual(VaultItemDetailStatus.Found);
+      expect(detail.title).assertEqual('GitLab');
+      expect(detail.username).assertEqual('dev@example.com');
+      expect(detail.uri).assertEqual('https://gitlab.com');
+      expect(detail.passwordPreview).assertEqual('********');
+    });
+
     it('returns not found for an unknown vault item', 0, () => {
       let repository: PreviewVaultRepository = new PreviewVaultRepository();
 
