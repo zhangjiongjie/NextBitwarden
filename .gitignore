@@ -1,4 +1,5 @@
 android/
+.codegraph/
 **/.hvigor/
 **/oh_modules/
 **/build/
