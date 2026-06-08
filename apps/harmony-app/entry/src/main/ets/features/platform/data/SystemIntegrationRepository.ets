@@ -51,8 +51,8 @@ export class PreviewSystemIntegrationRepository implements SystemIntegrationRepo
         '自动填充 Provider',
         CapabilityStatus.NeedsSpike,
         '首发必做 / 高风险',
-        'autoFill/password provider',
-        '优先验证 AutoFillExtensionAbility / autoFill/password，hmbitwarden 是正向市场证据。',
+        'provider openness spike',
+        'Provider 接口开放性待验证，首发按高风险 Spike 推进，并准备表单侧和受限等效方案。',
         true,
         true
       ),

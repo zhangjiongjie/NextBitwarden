@@ -4,7 +4,7 @@
 
 **目标：** 按 `docs/harmonyos-porting-notes.md` 的一期范围开发 HarmonyOS NEXT 原生 Password Manager，功能尽量对齐 Bitwarden Android 主应用，UI 尽量相似。
 
-**架构：** 一期采用单 `entry` 模块启动，先建立 Root 状态机、Feature Contract、系统能力 Capability 和 Bitwarden SDK Bridge 四层边界。系统集成能力（自动填充、Passkey、凭据获取、生物识别、推送同步）全部通过 Capability 接口接入，避免业务层直接依赖 HarmonyOS API。SDK 侧优先按源码或 native bridge 接入准备，应用层只依赖 `SdkClientManager` 和 `SdkRepositoryBridge`。
+**架构：** 一期采用单 `entry` 模块启动，先建立 Root 状态机、Feature Contract、系统能力 Capability 和 Bitwarden SDK Bridge 四层边界。系统集成能力（自动填充、Passkey、凭据获取、生物识别、推送同步）全部通过 Capability 接口接入，避免业务层直接依赖 HarmonyOS API。当前自动填充只能确认表单侧 / 密码保险箱使用方能力，普通三方密码管理器 provider 入口尚未确认开放，因此 Capability 必须同时容纳候选 provider 与受限等效方案。SDK 侧优先按源码或 native bridge 接入准备，应用层只依赖 `SdkClientManager` 和 `SdkRepositoryBridge`。
 
 **技术栈：** HarmonyOS NEXT、ArkTS、ArkUI、Stage Model、Ability Kit、HUKS / userAuth / AutoFill / FIDO2 Capability 适配层、Bitwarden internal SDK bridge。
 
@@ -234,11 +234,11 @@ export class CapabilityProbeResult {
 }
 ```
 
-- [ ] **步骤 2：自动填充优先按 provider 路径抽象**
+- [ ] **步骤 2：自动填充按受限系统集成能力抽象**
 
 ```typescript
 export enum AutofillProviderRoute {
-  PublicProvider = 'publicProvider',
+  PublicProviderCandidate = 'publicProviderCandidate',
   PrivilegedProvider = 'privilegedProvider',
   EquivalentIntegration = 'equivalentIntegration'
 }
@@ -690,8 +690,8 @@ export enum AppDestination {
 
 测试覆盖：
 
-- 系统集成首发清单必须按稳定顺序暴露：自动填充 provider、凭据 provider、设备 Passkey 登录、生物识别、推送同步。
-- 自动填充 provider 必须标记为 `NeedsSpike`，并保留 `autoFill/password provider` 路线。
+- 系统集成首发清单必须按稳定顺序暴露：自动填充候选 provider / 等效方案、凭据 provider、设备 Passkey 登录、生物识别、推送同步。
+- 自动填充必须标记为 `NeedsSpike`，并明确普通三方 provider 入口当前未确认开放。
 - 凭据 provider 必须与自动填充 provider 分开建模，不能混为一条能力。
 - 推送同步 fallback 必须标记为 `Available`，且不需要特权访问。
 
@@ -1294,3 +1294,4 @@ export enum AppDestination {
 - 规格覆盖度：计划覆盖 `Password Manager` 一期主应用、TOTP、设备 Passkey 登录、自动填充、凭据获取、SDK bridge、生物识别、推送同步、自托管 / SSO / trusted device / key connector 边界，以及 Premium Web 开放、mTLS 预留和 Authenticator 扩展边界。
 - 类型一致性：`CapabilityProbeResult`、`SdkClientManager`、`RootState`、`SpecialCircumstance` 在计划和工程骨架中使用同一命名。
 - 安全边界：计划不提交签名材料，不伪造加密实现，不把自动填充和 Passkey provider 混为同一能力。
+- 自动填充边界：当前文档口径已更新为“普通三方 provider 未确认开放”。`AutoFillExtensionAbility` / `autoFill/password` 只能作为候选 spike 路线，首发架构必须准备受限等效方案。

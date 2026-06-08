@@ -13,7 +13,7 @@ class MilestoneItem {
 const MILESTONES: MilestoneItem[] = [
   new MilestoneItem('一期范围', '只做 Password Manager 主应用，首发对齐 Android 的登录、Vault、TOTP、自动填充、Passkey 和凭据获取。'),
   new MilestoneItem('Bitwarden SDK', '优先接入官方 internal SDK，应用层只通过 SdkClientManager 和 SdkRepositoryBridge 访问。'),
-  new MilestoneItem('自动填充', '优先验证 AutoFillExtensionAbility / autoFill/password，hmbitwarden 是重要市场侧正向证据。'),
+  new MilestoneItem('自动填充', 'Provider 接口开放性待验证，首发按高风险 Spike 推进，并准备表单侧和受限等效方案。'),
   new MilestoneItem('Passkey', '设备内置 Passkey 登录必须首发；第三方 Passkey provider 与普通自动填充分开验证。'),
   new MilestoneItem('安全能力', '生物识别、HUKS、剪贴板清理和自动锁定都必须在 Capability 层隔离。')
 ];
