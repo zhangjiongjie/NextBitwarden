@@ -678,6 +678,54 @@ export enum AppDestination {
 
 结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
 
+## 任务 12：系统集成 readiness 数据边界
+
+**文件：**
+- 创建：`apps/harmony-app/entry/src/main/ets/features/platform/data/SystemIntegrationRepository.ets`
+- 创建：`apps/harmony-app/entry/src/ohosTest/ets/test/SystemIntegrationRepository.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/List.test.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/features/platform/SystemIntegrationScreen.ets`
+
+- [x] **步骤 1：先写系统集成 readiness 测试**
+
+测试覆盖：
+
+- 系统集成首发清单必须按稳定顺序暴露：自动填充 provider、凭据 provider、设备 Passkey 登录、生物识别、推送同步。
+- 自动填充 provider 必须标记为 `NeedsSpike`，并保留 `autoFill/password provider` 路线。
+- 凭据 provider 必须与自动填充 provider 分开建模，不能混为一条能力。
+- 推送同步 fallback 必须标记为 `Available`，且不需要特权访问。
+
+- [x] **步骤 2：验证红灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：构建失败，错误为找不到 `features/platform/data/SystemIntegrationRepository`，证明测试正在约束尚未实现的系统集成数据边界。
+
+- [x] **步骤 3：实现最小 readiness repository**
+
+`SystemIntegrationRepository.ets` 定义：
+
+- `SystemIntegrationArea`
+- `SystemIntegrationReadiness`
+- `SystemIntegrationRepository`
+- `PreviewSystemIntegrationRepository`
+
+当前 repository 只表达系统集成 readiness，不调用真实 AutoFill、Credential Provider、Passkey、userAuth、HUKS 或 Push Kit API。
+
+- [x] **步骤 4：接入系统集成页**
+
+`SystemIntegrationScreen` 现在从 `PreviewSystemIntegrationRepository` 读取 readiness 列表，并基于 `requiresPrivilegedAccess` 展示高风险能力提示。
+
+- [x] **步骤 5：验证绿灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode project assembleApp --no-daemon --stacktrace`
+
+结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
+
 ## 自检
 
 - 规格覆盖度：计划覆盖 `Password Manager` 一期主应用、TOTP、设备 Passkey 登录、自动填充、凭据获取、SDK bridge、生物识别、推送同步、自托管 / SSO / trusted device / key connector 边界。
