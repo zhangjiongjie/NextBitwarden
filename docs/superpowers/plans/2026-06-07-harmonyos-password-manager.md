@@ -973,6 +973,55 @@ export enum AppDestination {
 
 结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
 
+## 任务 18：生物识别 + HUKS 解锁页面和数据边界
+
+**文件：**
+- 修改：`apps/harmony-app/entry/src/main/ets/core/navigation/AppDestination.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/app/state/AppStateReducer.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/app/AppShell.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/auth/data/BiometricUnlockRepository.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/auth/BiometricUnlockScreen.ets`
+- 创建：`apps/harmony-app/entry/src/ohosTest/ets/test/BiometricUnlockRepository.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/AppStateReducer.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/List.test.ets`
+- 修改：`apps/harmony-app/README.md`
+
+- [x] **步骤 1：先写生物识别解锁红灯测试**
+
+测试覆盖：
+
+- `BiometricUnlockRequested` 必须从锁定态进入独立 `BiometricUnlock` 目的地，不能从解锁页直接进入保险库。
+- `BiometricUnlockSucceeded` 才能进入保险库首页。
+- preview session 必须同时声明需要 userAuth 用户认证和 HUKS 密钥保护。
+- capability 仍标记为 `NotConfigured`，不能误写成已完成真实平台接入。
+
+- [x] **步骤 2：验证红灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：构建失败，错误为缺少 `AppAction.BiometricUnlockRequested`、`AppAction.BiometricUnlockSucceeded`、`AppDestination.BiometricUnlock` 和 `features/auth/data/BiometricUnlockRepository`，证明测试正在约束尚未实现的生物识别解锁边界。
+
+- [x] **步骤 3：实现最小生物识别解锁 repository**
+
+本轮新增：
+
+- `BiometricUnlockStatus`
+- `BiometricUnlockSession`
+- `BiometricUnlockRepository`
+- `PreviewBiometricUnlockRepository`
+
+当前只表达 userAuth 与 HUKS 的能力边界，不调用真实 `@ohos.userIAM.userAuth`，不创建 HUKS 密钥，也不解封真实保险库密钥。
+
+- [x] **步骤 4：接入独立生物识别解锁页**
+
+`VaultUnlockScreen` 的“面容 / 指纹解锁”入口现在通过 `BiometricUnlockRequested` 进入 `BiometricUnlockScreen`；页面展示 userAuth 与 HUKS 的职责边界，并提供 preview 模拟成功入口用于状态流闭环。
+
+- [x] **步骤 5：验证绿灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
+
 ## 自检
 
 - 规格覆盖度：计划覆盖 `Password Manager` 一期主应用、TOTP、设备 Passkey 登录、自动填充、凭据获取、SDK bridge、生物识别、推送同步、自托管 / SSO / trusted device / key connector 边界，以及 Premium Web 开放、mTLS 预留和 Authenticator 扩展边界。

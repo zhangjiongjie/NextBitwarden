@@ -28,6 +28,24 @@ export default function appStateReducerTest(): void {
       expect(next.destination).assertEqual(AppDestination.Vault);
     });
 
+    it('routes biometric unlock requests to a dedicated userauth and huks screen', 0, () => {
+      let state: AppState = new AppState(RootState.Locked, AppDestination.Unlock);
+
+      let next: AppState = AppStateReducer.reduce(state, AppAction.BiometricUnlockRequested);
+
+      expect(next.rootState).assertEqual(RootState.Locked);
+      expect(next.destination).assertEqual(AppDestination.BiometricUnlock);
+    });
+
+    it('routes successful biometric unlock to the vault home screen', 0, () => {
+      let state: AppState = new AppState(RootState.Locked, AppDestination.BiometricUnlock);
+
+      let next: AppState = AppStateReducer.reduce(state, AppAction.BiometricUnlockSucceeded);
+
+      expect(next.rootState).assertEqual(RootState.Unlocked);
+      expect(next.destination).assertEqual(AppDestination.Vault);
+    });
+
     it('routes master password success to the totp challenge before vault unlock', 0, () => {
       let state: AppState = new AppState(RootState.Locked, AppDestination.Unlock);
 

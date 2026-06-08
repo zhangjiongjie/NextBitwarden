@@ -1,6 +1,7 @@
 import { AppDestination, destinationTitle } from '../core/navigation/AppDestination';
 import { rootStateDescription, rootStateTitle } from '../core/navigation/RootState';
 import { AuthLandingScreen } from '../features/auth/AuthLandingScreen';
+import { BiometricUnlockScreen } from '../features/auth/BiometricUnlockScreen';
 import { DevicePasskeyLoginScreen } from '../features/auth/DevicePasskeyLoginScreen';
 import { SsoWebAuthScreen } from '../features/auth/SsoWebAuthScreen';
 import { TotpLoginChallengeScreen } from '../features/auth/TotpLoginChallengeScreen';
@@ -145,10 +146,19 @@ export struct AppShell {
           this.dispatch(AppAction.MasterPasswordRequiresTotp);
         },
         onUseBiometric: () => {
-          this.dispatch(AppAction.UnlockSucceeded);
+          this.dispatch(AppAction.BiometricUnlockRequested);
         },
         onBackToLogin: () => {
           this.dispatch(AppAction.BackToLogin);
+        }
+      });
+    } else if (this.destination === AppDestination.BiometricUnlock) {
+      BiometricUnlockScreen({
+        onBiometricAccepted: () => {
+          this.dispatch(AppAction.BiometricUnlockSucceeded);
+        },
+        onBackToUnlock: () => {
+          this.dispatch(AppAction.ContinueWithPassword);
         }
       });
     } else if (this.destination === AppDestination.TotpChallenge) {
@@ -240,6 +250,8 @@ export struct AppShell {
         return AppAction.SelfHostedRequested;
       case AppDestination.SsoWebAuth:
         return AppAction.SsoRequested;
+      case AppDestination.BiometricUnlock:
+        return AppAction.BiometricUnlockRequested;
       case AppDestination.Vault:
         return AppAction.OpenVault;
       case AppDestination.SystemIntegrations:

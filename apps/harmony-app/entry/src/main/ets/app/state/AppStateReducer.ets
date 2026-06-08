@@ -3,6 +3,8 @@ import { RootState } from '../../core/navigation/RootState';
 
 export enum AppAction {
   ContinueWithPassword = 'continueWithPassword',
+  BiometricUnlockRequested = 'biometricUnlockRequested',
+  BiometricUnlockSucceeded = 'biometricUnlockSucceeded',
   DevicePasskeyRequested = 'devicePasskeyRequested',
   DevicePasskeySucceeded = 'devicePasskeySucceeded',
   SsoRequested = 'ssoRequested',
@@ -37,11 +39,14 @@ export class AppStateReducer {
     switch (action) {
       case AppAction.ContinueWithPassword:
         return new AppState(RootState.Locked, AppDestination.Unlock);
+      case AppAction.BiometricUnlockRequested:
+        return new AppState(RootState.Locked, AppDestination.BiometricUnlock);
       case AppAction.DevicePasskeyRequested:
         return new AppState(RootState.SignedOut, AppDestination.DevicePasskeyLogin);
       case AppAction.MasterPasswordRequiresTotp:
         return new AppState(RootState.Locked, AppDestination.TotpChallenge);
       case AppAction.DevicePasskeySucceeded:
+      case AppAction.BiometricUnlockSucceeded:
       case AppAction.TotpSucceeded:
       case AppAction.UnlockSucceeded:
       case AppAction.OpenVault:

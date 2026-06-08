@@ -1,6 +1,7 @@
 import appStateReducerTest from './AppStateReducer.test';
 import authRepositoryTest from './AuthRepository.test';
 import authStateMachineTest from './AuthStateMachine.test';
+import biometricUnlockRepositoryTest from './BiometricUnlockRepository.test';
 import devicePasskeyLoginRepositoryTest from './DevicePasskeyLoginRepository.test';
 import serverConfigRepositoryTest from './ServerConfigRepository.test';
 import settingsRepositoryTest from './SettingsRepository.test';
@@ -13,6 +14,7 @@ export default function testsuite(): void {
   appStateReducerTest();
   authRepositoryTest();
   authStateMachineTest();
+  biometricUnlockRepositoryTest();
   devicePasskeyLoginRepositoryTest();
   serverConfigRepositoryTest();
   settingsRepositoryTest();
