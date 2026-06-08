@@ -19,6 +19,7 @@ const VAULT_REPOSITORY: PreviewVaultRepository = new PreviewVaultRepository();
 @Component
 export struct VaultHomeScreen {
   onAddTotp?: () => void;
+  onItemDetail?: (itemId: string) => void;
   onVerificationCodes?: () => void;
   onSystemIntegrations?: () => void;
 
@@ -194,7 +195,10 @@ export struct VaultHomeScreen {
     .padding(14)
     .backgroundColor(AppTheme.surfaceColor)
     .borderRadius(16)
-    .border({ width: 1, color: AppTheme.dividerColor });
+    .border({ width: 1, color: AppTheme.dividerColor })
+    .onClick(() => {
+      this.handleItemDetail(item.id);
+    });
   }
 
   private handleVerificationCodes(): void {
@@ -210,6 +214,14 @@ export struct VaultHomeScreen {
     this.applyTransition(transition);
     if (transition.event.kind === VaultEventKind.NavigateToAddTotp) {
       this.emitAddTotp();
+    }
+  }
+
+  private handleItemDetail(itemId: string): void {
+    let transition: VaultTransition = VaultStateMachine.reduce(this.vaultState, VaultAction.OpenItemDetail);
+    this.applyTransition(transition);
+    if (transition.event.kind === VaultEventKind.NavigateToItemDetail) {
+      this.emitItemDetail(itemId);
     }
   }
 
@@ -234,6 +246,12 @@ export struct VaultHomeScreen {
   private emitAddTotp(): void {
     if (this.onAddTotp) {
       this.onAddTotp();
+    }
+  }
+
+  private emitItemDetail(itemId: string): void {
+    if (this.onItemDetail) {
+      this.onItemDetail(itemId);
     }
   }
 

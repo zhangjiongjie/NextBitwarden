@@ -1131,6 +1131,56 @@ export enum AppDestination {
 
 结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
 
+## 任务 21：保险库条目详情页面和数据边界
+
+**文件：**
+- 修改：`apps/harmony-app/entry/src/main/ets/core/navigation/AppDestination.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/app/state/AppStateReducer.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/app/AppShell.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/features/vault/VaultHomeScreen.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/features/vault/data/VaultRepository.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/vault/VaultItemDetailScreen.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/AppStateReducer.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/VaultRepository.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/VaultStateMachine.test.ets`
+- 修改：`apps/harmony-app/README.md`
+
+- [x] **步骤 1：先写条目详情红灯测试**
+
+测试覆盖：
+
+- `OpenItemDetail` 必须进入独立 `ItemDetail` 目的地。
+- AppState 必须携带 `selectedVaultItemId`，避免详情页固定展示首个条目。
+- Vault 状态机必须产生 `NavigateToItemDetail` 事件。
+- Vault repository 必须返回登录条目的安全详情 preview。
+- 未知条目必须返回 `NotFound` 状态和中文提示。
+
+- [x] **步骤 2：验证红灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：构建失败，错误为缺少 `AppAction.OpenItemDetail`、`AppDestination.ItemDetail`、`AppState.selectedVaultItemId`、`VaultItemDetail`、`VaultItemDetailStatus` 和 `getItemDetail()`，证明测试正在约束尚未实现的保险库条目详情边界。
+
+- [x] **步骤 3：实现最小条目详情 repository**
+
+本轮新增：
+
+- `VaultItemDetailStatus`
+- `VaultItemDetail`
+- `VaultRepository.getItemDetail(itemId)`
+
+当前只返回 mock 详情和隐藏密码占位，不做真实密码解密、自定义字段、附件、复制剪贴板或审计日志。
+
+- [x] **步骤 4：接入独立条目详情页**
+
+保险库列表条目现在可以点击进入 `VaultItemDetailScreen`；`AppState` 会保存选中的 `itemId`，详情页展示用户名、URI、备注、TOTP 状态和密码隐藏占位。
+
+- [x] **步骤 5：验证绿灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
+
 ## 自检
 
 - 规格覆盖度：计划覆盖 `Password Manager` 一期主应用、TOTP、设备 Passkey 登录、自动填充、凭据获取、SDK bridge、生物识别、推送同步、自托管 / SSO / trusted device / key connector 边界，以及 Premium Web 开放、mTLS 预留和 Authenticator 扩展边界。

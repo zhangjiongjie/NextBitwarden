@@ -17,6 +17,7 @@ export enum AppAction {
   BackToLogin = 'backToLogin',
   OpenSignIn = 'openSignIn',
   OpenVault = 'openVault',
+  OpenItemDetail = 'openItemDetail',
   OpenAddTotp = 'openAddTotp',
   TotpSetupSaved = 'totpSetupSaved',
   OpenVerificationCodes = 'openVerificationCodes',
@@ -27,10 +28,12 @@ export enum AppAction {
 export class AppState {
   rootState: RootState;
   destination: AppDestination;
+  selectedVaultItemId: string;
 
-  constructor(rootState: RootState, destination: AppDestination) {
+  constructor(rootState: RootState, destination: AppDestination, selectedVaultItemId: string = '') {
     this.rootState = rootState;
     this.destination = destination;
+    this.selectedVaultItemId = selectedVaultItemId;
   }
 }
 
@@ -39,7 +42,7 @@ export function createInitialAppState(): AppState {
 }
 
 export class AppStateReducer {
-  static reduce(state: AppState, action: AppAction): AppState {
+  static reduce(state: AppState, action: AppAction, payload: string = ''): AppState {
     switch (action) {
       case AppAction.ContinueWithPassword:
         return new AppState(RootState.Locked, AppDestination.Unlock);
@@ -66,6 +69,8 @@ export class AppStateReducer {
         return new AppState(RootState.SignedOut, AppDestination.ServerConfig);
       case AppAction.OpenVerificationCodes:
         return new AppState(state.rootState, AppDestination.VerificationCodes);
+      case AppAction.OpenItemDetail:
+        return new AppState(RootState.Unlocked, AppDestination.ItemDetail, payload);
       case AppAction.OpenAddTotp:
         return new AppState(RootState.Unlocked, AppDestination.AddTotp);
       case AppAction.TotpSetupSaved:

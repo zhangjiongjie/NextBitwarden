@@ -8,6 +8,7 @@ export enum AppDestination {
   ServerConfig = 'serverConfig',
   SsoWebAuth = 'ssoWebAuth',
   Vault = 'vault',
+  ItemDetail = 'itemDetail',
   AddTotp = 'addTotp',
   VerificationCodes = 'verificationCodes',
   SystemIntegrations = 'systemIntegrations',
@@ -34,6 +35,8 @@ export function destinationTitle(destination: AppDestination): string {
       return '企业 SSO';
     case AppDestination.Vault:
       return '保险库';
+    case AppDestination.ItemDetail:
+      return '条目详情';
     case AppDestination.AddTotp:
       return '添加 TOTP';
     case AppDestination.VerificationCodes:

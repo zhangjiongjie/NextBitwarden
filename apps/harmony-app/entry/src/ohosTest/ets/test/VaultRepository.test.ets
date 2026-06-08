@@ -1,6 +1,8 @@
 import { describe, it, expect } from '@ohos/hypium';
 import {
   PreviewVaultRepository,
+  VaultItemDetail,
+  VaultItemDetailStatus,
   VaultHomeViewState,
   VaultItemType,
   VaultListItem,
@@ -37,6 +39,28 @@ export default function vaultRepositoryTest(): void {
       expect(codes.length).assertEqual(2);
       expect(codes[0].issuer).assertEqual('GitHub');
       expect(codes[0].codePreview).assertEqual('000 000');
+    });
+
+    it('returns a safe preview detail for a vault login item', 0, () => {
+      let repository: PreviewVaultRepository = new PreviewVaultRepository();
+
+      let detail: VaultItemDetail = repository.getItemDetail('github-login');
+
+      expect(detail.status).assertEqual(VaultItemDetailStatus.Found);
+      expect(detail.itemId).assertEqual('github-login');
+      expect(detail.title).assertEqual('GitHub');
+      expect(detail.username).assertEqual('octocat@example.com');
+      expect(detail.passwordPreview).assertEqual('********');
+      expect(detail.canRevealPassword).assertFalse();
+    });
+
+    it('returns not found for an unknown vault item', 0, () => {
+      let repository: PreviewVaultRepository = new PreviewVaultRepository();
+
+      let detail: VaultItemDetail = repository.getItemDetail('missing-login');
+
+      expect(detail.status).assertEqual(VaultItemDetailStatus.NotFound);
+      expect(detail.message).assertEqual('未找到保险库条目');
     });
   });
 }

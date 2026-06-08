@@ -11,6 +11,7 @@ import { SystemIntegrationScreen } from '../features/platform/SystemIntegrationS
 import { ServerConfigScreen } from '../features/settings/ServerConfigScreen';
 import { SettingsOverviewScreen } from '../features/settings/SettingsOverviewScreen';
 import { TotpSetupScreen } from '../features/vault/TotpSetupScreen';
+import { VaultItemDetailScreen } from '../features/vault/VaultItemDetailScreen';
 import { VaultHomeScreen } from '../features/vault/VaultHomeScreen';
 import { VerificationCodesScreen } from '../features/vault/VerificationCodesScreen';
 import { AppAction, AppState, AppStateReducer, createInitialAppState } from './state/AppStateReducer';
@@ -186,6 +187,9 @@ export struct AppShell {
       });
     } else if (this.destination === AppDestination.Vault) {
       VaultHomeScreen({
+        onItemDetail: (itemId: string) => {
+          this.dispatch(AppAction.OpenItemDetail, itemId);
+        },
         onAddTotp: () => {
           this.dispatch(AppAction.OpenAddTotp);
         },
@@ -194,6 +198,13 @@ export struct AppShell {
         },
         onSystemIntegrations: () => {
           this.dispatch(AppAction.OpenSystemIntegrations);
+        }
+      });
+    } else if (this.destination === AppDestination.ItemDetail) {
+      VaultItemDetailScreen({
+        itemId: this.appState.selectedVaultItemId,
+        onBackToVault: () => {
+          this.dispatch(AppAction.OpenVault);
         }
       });
     } else if (this.destination === AppDestination.AddTotp) {
@@ -262,8 +273,8 @@ export struct AppShell {
     return this.appState.destination;
   }
 
-  private dispatch(action: AppAction): void {
-    this.appState = AppStateReducer.reduce(this.appState, action);
+  private dispatch(action: AppAction, payload: string = ''): void {
+    this.appState = AppStateReducer.reduce(this.appState, action, payload);
   }
 
   private actionForDestination(target: AppDestination): AppAction {
@@ -282,6 +293,8 @@ export struct AppShell {
         return AppAction.BiometricUnlockRequested;
       case AppDestination.Vault:
         return AppAction.OpenVault;
+      case AppDestination.ItemDetail:
+        return AppAction.OpenItemDetail;
       case AppDestination.AddTotp:
         return AppAction.OpenAddTotp;
       case AppDestination.SystemIntegrations:

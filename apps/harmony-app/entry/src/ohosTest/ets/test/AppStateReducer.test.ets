@@ -82,6 +82,16 @@ export default function appStateReducerTest(): void {
       expect(next.destination).assertEqual(AppDestination.VerificationCodes);
     });
 
+    it('routes vault item detail requests with a selected item id', 0, () => {
+      let state: AppState = new AppState(RootState.Unlocked, AppDestination.Vault);
+
+      let next: AppState = AppStateReducer.reduce(state, AppAction.OpenItemDetail, 'github-login');
+
+      expect(next.rootState).assertEqual(RootState.Unlocked);
+      expect(next.destination).assertEqual(AppDestination.ItemDetail);
+      expect(next.selectedVaultItemId).assertEqual('github-login');
+    });
+
     it('routes device passkey requests to a dedicated platform login screen', 0, () => {
       let state: AppState = createInitialAppState();
 
