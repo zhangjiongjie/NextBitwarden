@@ -726,8 +726,56 @@ export enum AppDestination {
 
 结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
 
+## 任务 13：Settings policy 数据边界
+
+**文件：**
+- 创建：`apps/harmony-app/entry/src/main/ets/features/settings/data/SettingsRepository.ets`
+- 创建：`apps/harmony-app/entry/src/ohosTest/ets/test/SettingsRepository.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/List.test.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/features/settings/SettingsOverviewScreen.ets`
+- 修改：`apps/harmony-app/README.md`
+
+- [x] **步骤 1：先写 Settings repository 测试**
+
+测试覆盖：
+
+- `Premium / 订阅` 一期统一走 Web 开放。
+- 应用端不启用应用内购买，也不启用本地功能门禁。
+- 设置策略按稳定顺序暴露：Premium、自托管、安全策略、企业加密、企业证书 / mTLS、独立 Authenticator / Bridge 扩展边界。
+- `key connector` 所在的企业加密能力仍是一期开工项，但标记为高风险。
+- 企业证书 / `mTLS` 和独立 `Authenticator / Bridge` 都是预留边界，不是一期开工项。
+
+- [x] **步骤 2：验证红灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：构建失败，错误为找不到 `features/settings/data/SettingsRepository`，证明测试正在约束尚未实现的 Settings 数据边界。
+
+- [x] **步骤 3：实现最小 settings policy repository**
+
+`SettingsRepository.ets` 定义：
+
+- `PremiumAccessMode`
+- `SettingsPolicyArea`
+- `PremiumAccessPolicy`
+- `SettingsPolicyItem`
+- `SettingsRepository`
+- `PreviewSettingsRepository`
+
+当前 repository 只表达已确认的产品策略和扩展边界，不做真实订阅查询、购买、企业证书、mTLS、key connector 或独立 Authenticator 实现。
+
+- [x] **步骤 4：接入设置页**
+
+`SettingsOverviewScreen` 现在从 `PreviewSettingsRepository` 读取策略清单，并用标签区分 Web 开放、首发必做、首发高风险和预留项。
+
+- [x] **步骤 5：验证绿灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
+
 ## 自检
 
-- 规格覆盖度：计划覆盖 `Password Manager` 一期主应用、TOTP、设备 Passkey 登录、自动填充、凭据获取、SDK bridge、生物识别、推送同步、自托管 / SSO / trusted device / key connector 边界。
+- 规格覆盖度：计划覆盖 `Password Manager` 一期主应用、TOTP、设备 Passkey 登录、自动填充、凭据获取、SDK bridge、生物识别、推送同步、自托管 / SSO / trusted device / key connector 边界，以及 Premium Web 开放、mTLS 预留和 Authenticator 扩展边界。
 - 类型一致性：`CapabilityProbeResult`、`SdkClientManager`、`RootState`、`SpecialCircumstance` 在计划和工程骨架中使用同一命名。
 - 安全边界：计划不提交签名材料，不伪造加密实现，不把自动填充和 Passkey provider 混为同一能力。
