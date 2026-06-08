@@ -29,4 +29,14 @@ export class ServerConfigBridge {
       'https://icons.bitwarden.net'
     );
   }
+
+  createSelfHosted(baseUrl: string): ServerConfig {
+    return new ServerConfig(
+      ServerEnvironment.SelfHosted,
+      baseUrl,
+      baseUrl + '/identity',
+      baseUrl + '/api',
+      baseUrl + '/icons'
+    );
+  }
 }

@@ -55,6 +55,15 @@ export default function appStateReducerTest(): void {
       expect(next.destination).assertEqual(AppDestination.SystemIntegrations);
     });
 
+    it('routes self-hosted requests to a dedicated server config screen', 0, () => {
+      let state: AppState = createInitialAppState();
+
+      let next: AppState = AppStateReducer.reduce(state, AppAction.SelfHostedRequested);
+
+      expect(next.rootState).assertEqual(RootState.SignedOut);
+      expect(next.destination).assertEqual(AppDestination.ServerConfig);
+    });
+
     it('signs out when returning to the sign-in destination', 0, () => {
       let state: AppState = new AppState(RootState.Unlocked, AppDestination.Settings);
 

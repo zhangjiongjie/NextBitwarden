@@ -4,6 +4,7 @@ import { AuthLandingScreen } from '../features/auth/AuthLandingScreen';
 import { TotpLoginChallengeScreen } from '../features/auth/TotpLoginChallengeScreen';
 import { VaultUnlockScreen } from '../features/auth/VaultUnlockScreen';
 import { SystemIntegrationScreen } from '../features/platform/SystemIntegrationScreen';
+import { ServerConfigScreen } from '../features/settings/ServerConfigScreen';
 import { SettingsOverviewScreen } from '../features/settings/SettingsOverviewScreen';
 import { VaultHomeScreen } from '../features/vault/VaultHomeScreen';
 import { VerificationCodesScreen } from '../features/vault/VerificationCodesScreen';
@@ -109,6 +110,15 @@ export struct AppShell {
           this.dispatch(AppAction.SelfHostedRequested);
         }
       });
+    } else if (this.destination === AppDestination.ServerConfig) {
+      ServerConfigScreen({
+        onBackToSignIn: () => {
+          this.dispatch(AppAction.OpenSignIn);
+        },
+        onSaved: () => {
+          this.dispatch(AppAction.OpenSignIn);
+        }
+      });
     } else if (this.destination === AppDestination.Unlock) {
       VaultUnlockScreen({
         onUnlocked: () => {
@@ -207,6 +217,8 @@ export struct AppShell {
     switch (target) {
       case AppDestination.SignIn:
         return AppAction.OpenSignIn;
+      case AppDestination.ServerConfig:
+        return AppAction.SelfHostedRequested;
       case AppDestination.Vault:
         return AppAction.OpenVault;
       case AppDestination.SystemIntegrations:

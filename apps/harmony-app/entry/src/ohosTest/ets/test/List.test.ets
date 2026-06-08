@@ -1,6 +1,7 @@
 import appStateReducerTest from './AppStateReducer.test';
 import authRepositoryTest from './AuthRepository.test';
 import authStateMachineTest from './AuthStateMachine.test';
+import serverConfigRepositoryTest from './ServerConfigRepository.test';
 import settingsRepositoryTest from './SettingsRepository.test';
 import systemIntegrationRepositoryTest from './SystemIntegrationRepository.test';
 import vaultRepositoryTest from './VaultRepository.test';
@@ -10,6 +11,7 @@ export default function testsuite(): void {
   appStateReducerTest();
   authRepositoryTest();
   authStateMachineTest();
+  serverConfigRepositoryTest();
   settingsRepositoryTest();
   systemIntegrationRepositoryTest();
   vaultRepositoryTest();

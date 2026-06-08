@@ -824,6 +824,57 @@ export enum AppDestination {
 
 结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
 
+## 任务 15：自托管服务器配置页和数据边界
+
+**文件：**
+- 修改：`apps/harmony-app/entry/src/main/ets/core/sdk/ServerConfigBridge.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/core/navigation/AppDestination.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/app/state/AppStateReducer.ets`
+- 修改：`apps/harmony-app/entry/src/main/ets/app/AppShell.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/settings/data/ServerConfigRepository.ets`
+- 创建：`apps/harmony-app/entry/src/main/ets/features/settings/ServerConfigScreen.ets`
+- 创建：`apps/harmony-app/entry/src/ohosTest/ets/test/ServerConfigRepository.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/AppStateReducer.test.ets`
+- 修改：`apps/harmony-app/entry/src/ohosTest/ets/test/List.test.ets`
+- 修改：`apps/harmony-app/README.md`
+
+- [x] **步骤 1：先写自托管配置红灯测试**
+
+测试覆盖：
+
+- `SelfHostedRequested` 必须进入独立 `ServerConfig` 目的地，不再复用设置概览页。
+- 默认服务器配置仍是 Bitwarden cloud。
+- 自托管 base URL 可以派生 `identity / api / icons` endpoint。
+- 空地址和非 HTTPS 地址必须返回明确 validation 状态与中文提示。
+
+- [x] **步骤 2：验证红灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：构建失败，错误为缺少 `AppDestination.ServerConfig` 和 `features/settings/data/ServerConfigRepository`，证明测试正在约束尚未实现的自托管配置边界。
+
+- [x] **步骤 3：实现最小 ServerConfig repository**
+
+本轮新增 / 调整：
+
+- `ServerConfigBridge.createSelfHosted()`
+- `ServerConfigValidationStatus`
+- `ServerConfigSaveResult`
+- `ServerConfigRepository`
+- `PreviewServerConfigRepository`
+
+当前只做 preview 校验和 endpoint 派生，不做真实持久化、网络切换、SSO Cookie 或 SDK client 重建。
+
+- [x] **步骤 4：接入独立配置页**
+
+`AuthLandingScreen` 的“自托管”入口现在通过 `SelfHostedRequested` 进入 `ServerConfigScreen`；页面保存成功后返回登录页，为后续真实 SDK 配置落盘和 client lifecycle 重建预留接线点。
+
+- [x] **步骤 5：验证绿灯**
+
+运行：`& 'C:\Program Files\Huawei\DevEco Studio\tools\hvigor\bin\hvigorw.bat' --mode module -p module=entry@ohosTest assembleHap --no-daemon --stacktrace`
+
+结果：`BUILD SUCCESSFUL`，仍只有预期的 `No signingConfig found for product default` 警告。
+
 ## 自检
 
 - 规格覆盖度：计划覆盖 `Password Manager` 一期主应用、TOTP、设备 Passkey 登录、自动填充、凭据获取、SDK bridge、生物识别、推送同步、自托管 / SSO / trusted device / key connector 边界，以及 Premium Web 开放、mTLS 预留和 Authenticator 扩展边界。
